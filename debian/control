@@ -1,0 +1,15 @@
+Source: renx-launcher
+Section: unknown
+Priority: optional
+Maintainer: Robert Middleton <robert.middleton@rm5248.com>
+Build-Depends: debhelper (>= 9), qtbase5-dev
+Standards-Version: 3.9.8
+Homepage: <insert the upstream URL, if relevant>
+#Vcs-Git: https://anonscm.debian.org/collab-maint/renx-launcher.git
+#Vcs-Browser: https://anonscm.debian.org/cgit/collab-maint/renx-launcher.git
+
+Package: renx-launcher
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Renegade-X launcher
+ Unofficial Renegade-X launcher
