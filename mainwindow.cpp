@@ -21,7 +21,8 @@ MainWindow::~MainWindow()
 
 void MainWindow::refresh(){
     QNetworkRequest req;
-    req.setUrl( QUrl( "http://serverlist.renegade-x.com/servers.jsp" ) );
+    req.setUrl( QUrl( "https://serverlist.renegade-x.com/servers.jsp?id=launcher HTTP/1.1" ) );
+    req.setRawHeader( "User-Agent:", "RenX-Launcher (0.84)" );
 
     QNetworkReply* reply = m_network.get( req );
     connect( reply, &QNetworkReply::finished, [reply,this](){
