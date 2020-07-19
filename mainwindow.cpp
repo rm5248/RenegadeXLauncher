@@ -2,10 +2,13 @@
 #include <QNetworkReply>
 #include <QJsonDocument>
 #include <QJsonArray>
+#include <QRandomGenerator>
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "releaseinformation.h"
+#include "settingsdialog.h"
+#include "instructionentry.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -88,16 +91,54 @@ void MainWindow::checkForUpdates(){
 
         ReleaseInformation ri( jsonDoc );
 
+        m_releaseInfo = ri;
+
         qDebug() << "Latest game version is " << ri.gameInfo().version_number();
     });
 }
 
 void MainWindow::on_actionSettings_triggered()
 {
-
+    SettingsDialog d;
+    d.exec();
 }
 
 void MainWindow::on_actionExit_triggered()
 {
     QApplication::exit();
+}
+
+void MainWindow::on_actionValidate_Install_triggered()
+{
+    QNetworkRequest req;
+    QVector<GameInfo::MirrorInfo> mirrors = m_releaseInfo.gameInfo().mirrorInfo();
+    QRandomGenerator randGen;
+    int randomMirrorNumber = randGen.bounded( 0, mirrors.length() );
+    GameInfo::MirrorInfo mirrorToUse = mirrors[ randomMirrorNumber ];
+
+    req.setUrl( QUrl( mirrorToUse.url + "/" + m_releaseInfo.gameInfo().patch_path() + "/instructions.json" ) );
+
+    QNetworkReply* reply = m_network.get( req );
+    connect( reply, &QNetworkReply::finished, [reply,this](){
+        reply->deleteLater();
+
+        if( reply->error() != QNetworkReply::NoError ){
+            qDebug() << "Error: " << reply->errorString();
+            return;
+        }
+
+        QVector<ServerInformation> info;
+        QJsonDocument jsonDoc = QJsonDocument::fromJson( reply->readAll() );
+
+        if( jsonDoc.isNull() ){
+            qDebug() << "Bad JSON document";
+            return;
+        }
+
+        QJsonArray installationArray = jsonDoc.array();
+        QVector<InstructionEntry> instructions;
+        for( QJsonValue obj : installationArray ){
+            instructions.push_back( InstructionEntry( obj.toObject() ) );
+        }
+    });
 }

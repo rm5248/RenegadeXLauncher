@@ -5,6 +5,7 @@
 #include <QNetworkAccessManager>
 
 #include "serverlistmodel.h"
+#include "releaseinformation.h"
 
 namespace Ui {
 class MainWindow;
@@ -29,10 +30,13 @@ private slots:
 
     void on_actionExit_triggered();
 
+    void on_actionValidate_Install_triggered();
+
 private:
     Ui::MainWindow *ui;
     QNetworkAccessManager m_network;
     ServerListModel m_model;
+    ReleaseInformation m_releaseInfo;
 };
 
 #endif // MAINWINDOW_H

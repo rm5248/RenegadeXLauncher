@@ -31,13 +31,18 @@ SOURCES += main.cpp\
     serverinformation.cpp \
     releaseinformation.cpp \
     launcherinfo.cpp \
-    gameinfo.cpp
+    gameinfo.cpp \
+    settingsdialog.cpp \
+    instructionentry.cpp
 
 HEADERS  += mainwindow.h \
     serverlistmodel.h \
     serverinformation.h \
     releaseinformation.h \
     launcherinfo.h \
-    gameinfo.h
+    gameinfo.h \
+    settingsdialog.h \
+    instructionentry.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    settingsdialog.ui
