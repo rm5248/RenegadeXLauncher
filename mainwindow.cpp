@@ -5,6 +5,7 @@
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "releaseinformation.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -62,4 +63,41 @@ void MainWindow::refresh(){
 void MainWindow::on_refreshButton_clicked()
 {
     refresh();
+}
+
+void MainWindow::checkForUpdates(){
+    QNetworkRequest req;
+    req.setUrl( QUrl( "https://static.renegade-x.com/launcher_data/version/release.json" ) );
+
+    QNetworkReply* reply = m_network.get( req );
+    connect( reply, &QNetworkReply::finished, [reply,this](){
+        reply->deleteLater();
+
+        if( reply->error() != QNetworkReply::NoError ){
+            qDebug() << "Error: " << reply->errorString();
+            return;
+        }
+
+        QVector<ServerInformation> info;
+        QJsonDocument jsonDoc = QJsonDocument::fromJson( reply->readAll() );
+
+        if( jsonDoc.isNull() ){
+            qDebug() << "Bad JSON document";
+            return;
+        }
+
+        ReleaseInformation ri( jsonDoc );
+
+        qDebug() << "Latest game version is " << ri.gameInfo().version_number();
+    });
+}
+
+void MainWindow::on_actionSettings_triggered()
+{
+
+}
+
+void MainWindow::on_actionExit_triggered()
+{
+    QApplication::exit();
 }

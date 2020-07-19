@@ -20,9 +20,14 @@ public:
 
 public slots:
     void refresh();
+    void checkForUpdates();
 
 private slots:
     void on_refreshButton_clicked();
+
+    void on_actionSettings_triggered();
+
+    void on_actionExit_triggered();
 
 private:
     Ui::MainWindow *ui;

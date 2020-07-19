@@ -9,6 +9,7 @@ int main(int argc, char *argv[])
     w.show();
 
     QTimer::singleShot( 0, &w, &MainWindow::refresh );
+    QTimer::singleShot( 0, &w, &MainWindow::checkForUpdates );
 
     return a.exec();
 }

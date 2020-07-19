@@ -28,10 +28,16 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += main.cpp\
         mainwindow.cpp \
     serverlistmodel.cpp \
-    serverinformation.cpp
+    serverinformation.cpp \
+    releaseinformation.cpp \
+    launcherinfo.cpp \
+    gameinfo.cpp
 
 HEADERS  += mainwindow.h \
     serverlistmodel.h \
-    serverinformation.h
+    serverinformation.h \
+    releaseinformation.h \
+    launcherinfo.h \
+    gameinfo.h
 
 FORMS    += mainwindow.ui
