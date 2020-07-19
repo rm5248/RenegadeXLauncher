@@ -12,6 +12,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->serverTable->setModel( &m_model );
+    ui->serverTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 }
 
 MainWindow::~MainWindow()
