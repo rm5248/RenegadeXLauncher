@@ -6,9 +6,9 @@
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "releaseinformation.h"
+#include "json-objects/releaseinformation.h"
 #include "settingsdialog.h"
-#include "instructionentry.h"
+#include "json-objects/instructionentry.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),

@@ -4,7 +4,7 @@
 #include <QAbstractTableModel>
 #include <QVector>
 
-#include "serverinformation.h"
+#include "json-objects/serverinformation.h"
 
 class ServerListModel : public QAbstractTableModel
 {

@@ -5,7 +5,7 @@
 #include <QNetworkAccessManager>
 
 #include "serverlistmodel.h"
-#include "releaseinformation.h"
+#include "json-objects/releaseinformation.h"
 
 namespace Ui {
 class MainWindow;

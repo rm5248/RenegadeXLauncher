@@ -28,21 +28,21 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += main.cpp\
         mainwindow.cpp \
     serverlistmodel.cpp \
-    serverinformation.cpp \
-    releaseinformation.cpp \
-    launcherinfo.cpp \
-    gameinfo.cpp \
+    json-objects/serverinformation.cpp \
+    json-objects/releaseinformation.cpp \
+    json-objects/launcherinfo.cpp \
+    json-objects/gameinfo.cpp \
     settingsdialog.cpp \
-    instructionentry.cpp
+    json-objects/instructionentry.cpp
 
 HEADERS  += mainwindow.h \
     serverlistmodel.h \
-    serverinformation.h \
-    releaseinformation.h \
-    launcherinfo.h \
-    gameinfo.h \
+    json-objects/serverinformation.h \
+    json-objects/releaseinformation.h \
+    json-objects/launcherinfo.h \
+    json-objects/gameinfo.h \
     settingsdialog.h \
-    instructionentry.h \
+    json-objects/instructionentry.h \
     renx-config.h
 
 FORMS    += mainwindow.ui \

@@ -4,8 +4,8 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 
-#include "launcherinfo.h"
-#include "gameinfo.h"
+#include "json-objects/launcherinfo.h"
+#include "json-objects/gameinfo.h"
 
 class ReleaseInformation
 {
