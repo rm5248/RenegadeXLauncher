@@ -42,7 +42,8 @@ HEADERS  += mainwindow.h \
     launcherinfo.h \
     gameinfo.h \
     settingsdialog.h \
-    instructionentry.h
+    instructionentry.h \
+    renx-config.h
 
 FORMS    += mainwindow.ui \
     settingsdialog.ui

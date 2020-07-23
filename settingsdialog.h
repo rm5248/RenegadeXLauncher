@@ -2,6 +2,7 @@
 #define SETTINGSDIALOG_H
 
 #include <QDialog>
+#include <QProcess>
 
 namespace Ui {
 class SettingsDialog;
@@ -17,9 +18,14 @@ public:
 
 private slots:
     void settingsAccepted();
+    void wineOutput();
+    void wineConfigFinished( int exitCode, QProcess::ExitStatus status );
+
+    void on_launchWinecfg_clicked();
 
 private:
     Ui::SettingsDialog *ui;
+    QProcess m_winecfg;
 };
 
 #endif // SETTINGSDIALOG_H
