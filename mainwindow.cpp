@@ -118,6 +118,8 @@ void MainWindow::on_actionValidate_Install_triggered()
 
     req.setUrl( QUrl( mirrorToUse.url + "/" + m_releaseInfo.gameInfo().patch_path() + "/instructions.json" ) );
 
+    m_validationDialog.open();
+
     QNetworkReply* reply = m_network.get( req );
     connect( reply, &QNetworkReply::finished, [reply,this](){
         reply->deleteLater();
@@ -140,5 +142,7 @@ void MainWindow::on_actionValidate_Install_triggered()
         for( QJsonValue obj : installationArray ){
             instructions.push_back( InstructionEntry( obj.toObject() ) );
         }
+
+        m_validationDialog.setValidationData( instructions );
     });
 }

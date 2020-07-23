@@ -33,7 +33,10 @@ SOURCES += main.cpp\
     json-objects/launcherinfo.cpp \
     json-objects/gameinfo.cpp \
     settingsdialog.cpp \
-    json-objects/instructionentry.cpp
+    json-objects/instructionentry.cpp \
+    validationdialog.cpp \
+    checksumdisplay.cpp \
+    filevalidator.cpp
 
 HEADERS  += mainwindow.h \
     serverlistmodel.h \
@@ -43,7 +46,12 @@ HEADERS  += mainwindow.h \
     json-objects/gameinfo.h \
     settingsdialog.h \
     json-objects/instructionentry.h \
-    renx-config.h
+    renx-config.h \
+    validationdialog.h \
+    checksumdisplay.h \
+    filevalidator.h
 
 FORMS    += mainwindow.ui \
-    settingsdialog.ui
+    settingsdialog.ui \
+    validationdialog.ui \
+    checksumdisplay.ui

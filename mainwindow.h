@@ -6,6 +6,7 @@
 
 #include "serverlistmodel.h"
 #include "json-objects/releaseinformation.h"
+#include "validationdialog.h"
 
 namespace Ui {
 class MainWindow;
@@ -37,6 +38,7 @@ private:
     QNetworkAccessManager m_network;
     ServerListModel m_model;
     ReleaseInformation m_releaseInfo;
+    ValidationDialog m_validationDialog;
 };
 
 #endif // MAINWINDOW_H
