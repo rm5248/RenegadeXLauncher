@@ -35,6 +35,8 @@ private slots:
 
     void on_actionValidate_Install_triggered();
 
+    void on_actionInstall_triggered();
+
 private:
     Ui::MainWindow *ui;
     QNetworkAccessManager m_network;

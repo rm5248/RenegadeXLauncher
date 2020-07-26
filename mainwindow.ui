@@ -72,6 +72,7 @@
      <string>Launcher</string>
     </property>
     <addaction name="actionSettings"/>
+    <addaction name="actionInstall"/>
     <addaction name="actionValidate_Install"/>
     <addaction name="actionExit"/>
    </widget>
@@ -90,6 +91,11 @@
   <action name="actionValidate_Install">
    <property name="text">
     <string>Validate Install</string>
+   </property>
+  </action>
+  <action name="actionInstall">
+   <property name="text">
+    <string>Install</string>
    </property>
   </action>
  </widget>

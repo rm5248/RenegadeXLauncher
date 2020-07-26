@@ -24,6 +24,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     ui->serverTable->setModel( &m_model );
     ui->serverTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+
+
+    connect( &m_installer, &RenxInstaller::percentDownloaded,
+             &m_downloadProgress, &DownloadDialog::downloadPercentageUpdated );
 }
 
 MainWindow::~MainWindow()
@@ -107,12 +111,13 @@ void MainWindow::checkForUpdates(){
                        << " Installed version is: "
                        << installedVersion );
 
-        if( ri.gameInfo().version_number() > installedVersion ){
-            m_installer.setMirrors( ri.gameInfo().mirrorInfo() );
-            m_installer.setPatchPath( ri.gameInfo().patch_path() );
-            m_installer.setInstructionsHash( ri.gameInfo().instructions_hash() );
-            m_installer.setNetworkAccessManager( &m_network );
 
+        m_installer.setMirrors( ri.gameInfo().mirrorInfo() );
+        m_installer.setPatchPath( ri.gameInfo().patch_path() );
+        m_installer.setInstructionsHash( ri.gameInfo().instructions_hash() );
+        m_installer.setNetworkAccessManager( &m_network );
+
+        if( ri.gameInfo().version_number() > installedVersion ){
             QString installQuestion = QString( "Update available!  Installed: %1 Available: %2" )
                     .arg( installedVersion )
                     .arg( ri.gameInfo().version_number() );
@@ -120,9 +125,6 @@ void MainWindow::checkForUpdates(){
                     QMessageBox::question( this, "Update available!", installQuestion );
 
             if( response == QMessageBox::Yes ){
-                connect( &m_installer, &RenxInstaller::percentDownloaded,
-                         &m_downloadProgress, &DownloadDialog::downloadPercentageUpdated );
-
                 m_installer.start();
                 m_downloadProgress.open();
             }
@@ -146,8 +148,7 @@ void MainWindow::on_actionValidate_Install_triggered()
 {
     QNetworkRequest req;
     QVector<GameInfo::MirrorInfo> mirrors = m_releaseInfo.gameInfo().mirrorInfo();
-    QRandomGenerator randGen;
-    int randomMirrorNumber = randGen.bounded( 0, mirrors.length() );
+    int randomMirrorNumber = QRandomGenerator::global()->bounded( 0, mirrors.length() );
     GameInfo::MirrorInfo mirrorToUse = mirrors[ randomMirrorNumber ];
 
     req.setUrl( QUrl( mirrorToUse.url + "/" + m_releaseInfo.gameInfo().patch_path() + "/instructions.json" ) );
@@ -179,4 +180,10 @@ void MainWindow::on_actionValidate_Install_triggered()
 
         m_validationDialog.setValidationData( instructions );
     });
+}
+
+void MainWindow::on_actionInstall_triggered()
+{
+    m_installer.start();
+    m_downloadProgress.open();
 }

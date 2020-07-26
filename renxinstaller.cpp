@@ -42,8 +42,7 @@ void RenxInstaller::setNetworkAccessManager( QNetworkAccessManager* network ){
 void RenxInstaller::start(){
     // First we need to download the instructions
     QNetworkRequest req;
-    QRandomGenerator randGen;
-    int randomMirrorNumber = randGen.bounded( 0, m_mirrors.length() );
+    int randomMirrorNumber = QRandomGenerator::global()->bounded( 0, m_mirrors.length() );
     GameInfo::MirrorInfo mirrorToUse = m_mirrors[ randomMirrorNumber ];
     m_preferred = mirrorToUse;
 
@@ -119,7 +118,7 @@ void RenxInstaller::downloadNextFile(){
     }
 
     m_currentInstruction = m_filesToDownload.dequeue();
-    QString nextDownloadFileName = m_currentInstruction.oldHash();
+    QString nextDownloadFileName = m_currentInstruction.newHash();
 
     LOG4CXX_DEBUG( logger, "Downloading the next file: " << nextDownloadFileName.toStdString() );
 
