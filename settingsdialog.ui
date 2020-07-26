@@ -109,6 +109,13 @@
     </widget>
    </item>
    <item>
+    <widget class="QCheckBox" name="use64Bit">
+     <property name="text">
+      <string>Use 64-bit?</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>

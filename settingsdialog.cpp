@@ -41,6 +41,7 @@ void SettingsDialog::settingsAccepted(){
     std::shared_ptr<QSettings> settings = renx_settings();
     settings->setValue( "wine/wineprefix", ui->wineprefix->text() );
     settings->setValue( "wine/renx-install-path", ui->installLocation->text() );
+    settings->setValue( "use-64bit", ui->use64Bit->isChecked() );
 }
 
 void SettingsDialog::on_launchWinecfg_clicked()
