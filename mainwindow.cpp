@@ -6,12 +6,16 @@
 #include <QVariant>
 #include <QMessageBox>
 
+#include <log4cxx/logger.h>
+
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "json-objects/releaseinformation.h"
 #include "settingsdialog.h"
 #include "json-objects/instructionentry.h"
 #include "renx-config.h"
+
+static log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger( "com.rm5248.RenegadeXLauncher.MainWindow" );
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -37,7 +41,7 @@ void MainWindow::refresh(){
         reply->deleteLater();
 
         if( reply->error() != QNetworkReply::NoError ){
-            qDebug() << "Error: " << reply->errorString();
+            LOG4CXX_ERROR( logger, "Unable to download servers: " << reply->errorString().toStdString() );
             return;
         }
 
@@ -45,12 +49,12 @@ void MainWindow::refresh(){
         QJsonDocument jsonDoc = QJsonDocument::fromJson( reply->readAll() );
 
         if( jsonDoc.isNull() ){
-            qDebug() << "Bad JSON document";
+            LOG4CXX_ERROR( logger, "Server list not valid JSON" );
             return;
         }
 
         if( !jsonDoc.isArray() ){
-            qDebug() << "not array";
+            LOG4CXX_ERROR( logger, "Server list not an array" );
             return;
         }
 
@@ -80,14 +84,14 @@ void MainWindow::checkForUpdates(){
         reply->deleteLater();
 
         if( reply->error() != QNetworkReply::NoError ){
-            qDebug() << "Error: " << reply->errorString();
+            LOG4CXX_ERROR( logger, "Unable to download release info: " << reply->errorString().toStdString() );
             return;
         }
 
         QJsonDocument jsonDoc = QJsonDocument::fromJson( reply->readAll() );
 
         if( jsonDoc.isNull() ){
-            qDebug() << "Bad JSON document";
+            LOG4CXX_ERROR( logger, "Release info invalid JSON" );
             return;
         }
 
@@ -95,31 +99,35 @@ void MainWindow::checkForUpdates(){
 
         m_releaseInfo = ri;
 
-        qDebug() << "Latest game version is " << ri.gameInfo().version_number();
-
         std::shared_ptr<QSettings> settings = renx_settings();
         int installedVersion = settings->value( "installed-version", QVariant( 0 ) ).toInt();
+
+        LOG4CXX_DEBUG( logger, "Latest version is: "
+                       << ri.gameInfo().version_number()
+                       << " Installed version is: "
+                       << installedVersion );
+
         if( ri.gameInfo().version_number() > installedVersion ){
             m_installer.setMirrors( ri.gameInfo().mirrorInfo() );
             m_installer.setPatchPath( ri.gameInfo().patch_path() );
             m_installer.setInstructionsHash( ri.gameInfo().instructions_hash() );
+            m_installer.setNetworkAccessManager( &m_network );
+
+            QString installQuestion = QString( "Update available!  Installed: %1 Available: %2" )
+                    .arg( installedVersion )
+                    .arg( ri.gameInfo().version_number() );
+            QMessageBox::StandardButton response =
+                    QMessageBox::question( this, "Update available!", installQuestion );
+
+            if( response == QMessageBox::Yes ){
+                connect( &m_installer, &RenxInstaller::percentDownloaded,
+                         &m_downloadProgress, &DownloadDialog::downloadPercentageUpdated );
+
+                m_installer.start();
+                m_downloadProgress.open();
+            }
         }
 
-        QString installQuestion = QString( "Update available!  Installed: %1 Available: %2" )
-                .arg( installedVersion )
-                .arg( ri.gameInfo().version_number() );
-        QMessageBox::StandardButton response =
-                QMessageBox::question( this, "Update available!", installQuestion );
-
-        if( response == QMessageBox::Ok ){
-            qDebug() << "Starting install";
-
-            connect( &m_installer, &RenxInstaller::percentDownloaded,
-                     &m_downloadProgress, &DownloadDialog::downloadPercentageUpdated );
-
-            m_installer.start();
-            m_downloadProgress.open();
-        }
     });
 }
 

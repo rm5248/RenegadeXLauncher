@@ -6,8 +6,12 @@
 #include <QSettings>
 #include <QDir>
 
+#include <log4cxx/logger.h>
+
 #include "renxinstaller.h"
 #include "renx-config.h"
+
+static log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger( "com.rm5248.RenegadeXLauncher.RenxInstaller" );
 
 RenxInstaller::RenxInstaller(QObject *parent) : QObject(parent),
     m_currentDownloadTempFile( nullptr )
@@ -45,19 +49,21 @@ void RenxInstaller::start(){
 
     req.setUrl( QUrl( mirrorToUse.url + "/" + m_patchPath + "/instructions.json" ) );
 
+    LOG4CXX_DEBUG( logger, "Downloading instructions from " << req.url().toString().toStdString() );
+
     QNetworkReply* reply = m_networkAccess->get( req );
     connect( reply, &QNetworkReply::finished, [reply,this](){
         reply->deleteLater();
 
         if( reply->error() != QNetworkReply::NoError ){
-            qDebug() << "Error: " << reply->errorString();
+            LOG4CXX_ERROR( logger, "Unable to download instructions: " << reply->errorString().toStdString() );
             return;
         }
 
         QJsonDocument jsonDoc = QJsonDocument::fromJson( reply->readAll() );
 
         if( jsonDoc.isNull() ){
-            qDebug() << "Bad JSON document";
+            LOG4CXX_ERROR( logger, "Invalid XML file for instructions!" );
             return;
         }
 
@@ -86,16 +92,21 @@ void RenxInstaller::determineDifferences(){
 
         if( !file.exists() ){
             m_bytesToDownload += entry.fullReplaceSize();
-            m_filesToDownload.append( entry.compressedHash() );
+            m_filesToDownload.append( entry );
             continue;
         }
 
         QFileInfo finfo( file );
         if( finfo.size() != entry.fullReplaceSize() ){
             m_bytesToDownload += entry.fullReplaceSize();
-            m_filesToDownload.append( entry.compressedHash() );
+            m_filesToDownload.append( entry );
             continue;
         }
+
+        LOG4CXX_DEBUG( logger, "File " <<
+                       finfo.absoluteFilePath().toStdString()
+                       << " is good, not downloading"
+                       );
     }
 }
 
@@ -107,20 +118,26 @@ void RenxInstaller::downloadNextFile(){
         return;
     }
 
-    QString nextDownloadFileName = m_filesToDownload.dequeue();
+    m_currentInstruction = m_filesToDownload.dequeue();
+    QString nextDownloadFileName = m_currentInstruction.oldHash();
 
-    qDebug() << "Downloading next file " << nextDownloadFileName;
+    LOG4CXX_DEBUG( logger, "Downloading the next file: " << nextDownloadFileName.toStdString() );
 
     // Create the temporary file to download to.
     QDir tempDir = renx_baseInstallPath() + "/download";
     if( !tempDir.exists() ){
-        tempDir.mkdir( renx_baseInstallPath() + "/download" );
+        if( !tempDir.mkpath( "." ) ){
+            LOG4CXX_ERROR( logger, "can't mkpath!  dir: " << tempDir.absolutePath().toStdString() );
+            return;
+        }
     }
 
     m_currentDownloadTempFile = new QFile( tempDir.filePath( nextDownloadFileName ) );
     m_currentDownloadTempFile->open( QIODevice::WriteOnly );
 
     req.setUrl( QUrl( m_preferred.url + "/" + m_patchPath + "/full/" + nextDownloadFileName ) );
+
+    LOG4CXX_DEBUG( logger, "Downloading file full path: " << req.url().toString().toStdString() );
 
     m_currentDownload = m_networkAccess->get( req );
     connect( m_currentDownload, &QNetworkReply::readyRead,
@@ -135,14 +152,47 @@ void RenxInstaller::downloadReadyRead(){
 
     m_currentDownloadTempFile->write( data );
 
-    emit percentDownloaded( (m_currentBytesDownloaded / static_cast<double>( m_bytesToDownload ) ) * 100.0 );
+    double percent = (m_currentBytesDownloaded / static_cast<double>( m_bytesToDownload ) ) * 100.0;
+    LOG4CXX_TRACE( logger, "Download: " <<
+                   m_currentBytesDownloaded
+                   << "/"
+                   << m_bytesToDownload
+                   << " = "
+                   << percent
+                   << "%" );
+    emit percentDownloaded( percent );
 }
 
 void RenxInstaller::downloadFinished(){
-    if( m_currentDownloadTempFile ){
-        m_currentDownloadTempFile->close();
-        delete m_currentDownloadTempFile;
+    m_currentDownload->deleteLater();
+    m_currentDownloadTempFile->close();
+
+    if( m_currentDownload->error() != QNetworkReply::NoError ){
+        LOG4CXX_ERROR( logger, "Unable to download file!" );
+    }else{
+        LOG4CXX_DEBUG( logger, "File downloaded successfully" );
+
+        QFile endingFile( renx_baseInstallPath() + "/" + m_currentInstruction.path() );
+        QFileInfo endingInfo( endingFile );
+
+        QDir theDir = endingInfo.dir();
+        if( !theDir.exists() ){
+            LOG4CXX_DEBUG( logger, "Directory "
+                           << theDir.absolutePath().toStdString()
+                           << " does not exist, creating" );
+            if( !theDir.mkpath( "." ) ){
+                LOG4CXX_ERROR( logger, "Can't create directory!" );
+            }
+        }
+
+        LOG4CXX_DEBUG( logger, "Renaming downloaded file "
+                       << m_currentInstruction.oldHash().toStdString()
+                       << " to "
+                       << endingInfo.absoluteFilePath().toStdString() );
+        m_currentDownloadTempFile->rename( endingInfo.absoluteFilePath() );
     }
+
+    delete m_currentDownloadTempFile;
 
     downloadNextFile();
 }

@@ -7,6 +7,7 @@ InstructionEntry::InstructionEntry()
 
 InstructionEntry::InstructionEntry( QJsonObject obj ){
     m_path = obj[ "Path" ].toString();
+    m_path = m_path.replace( "\\", "/" ); // Convert to Qt-universal directory separators
     m_oldHash = obj[ "OldHash" ].toString();
     m_newHash = obj[ "NewHash" ].toString();
     m_compressedHash = obj[ "CompressedHash" ].toString();

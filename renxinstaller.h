@@ -43,11 +43,12 @@ private:
     QString m_instructionsHash;
     QNetworkAccessManager* m_networkAccess;
     QVector<InstructionEntry> m_instructions;
-    QQueue<QString> m_filesToDownload;
-    int m_bytesToDownload;
-    int m_currentBytesDownloaded;
+    QQueue<InstructionEntry> m_filesToDownload;
+    uint32_t m_bytesToDownload;
+    uint32_t m_currentBytesDownloaded;
     QNetworkReply* m_currentDownload;
     QFile* m_currentDownloadTempFile;
+    InstructionEntry m_currentInstruction;
 };
 
 #endif // RENXINSTALLER_H
