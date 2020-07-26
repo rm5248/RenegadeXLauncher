@@ -7,6 +7,8 @@
 #include "serverlistmodel.h"
 #include "json-objects/releaseinformation.h"
 #include "validationdialog.h"
+#include "renxinstaller.h"
+#include "downloaddialog.h"
 
 namespace Ui {
 class MainWindow;
@@ -39,6 +41,8 @@ private:
     ServerListModel m_model;
     ReleaseInformation m_releaseInfo;
     ValidationDialog m_validationDialog;
+    RenxInstaller m_installer;
+    DownloadDialog m_downloadProgress;
 };
 
 #endif // MAINWINDOW_H

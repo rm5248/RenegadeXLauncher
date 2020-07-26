@@ -7,6 +7,7 @@
 #include <QProcess>
 #include <QtDebug>
 #include <QMessageBox>
+#include <QDir>
 
 SettingsDialog::SettingsDialog(QWidget *parent) :
     QDialog(parent),
@@ -51,7 +52,10 @@ void SettingsDialog::on_launchWinecfg_clicked()
     std::shared_ptr<QSettings> settings = renx_settings();
 
     QProcessEnvironment currentEnv = QProcessEnvironment::systemEnvironment();
-    currentEnv.insert( "WINEPREFIX", settings->value( "wine/wineprefix" ).toString() );
+    QString installDir = settings->value( "wine/wineprefix" ).toString();
+    installDir.replace( "~", QDir::homePath() );
+    installDir.append( "/" );
+    currentEnv.insert( "WINEPREFIX", installDir );
 
     m_winecfg.setProcessEnvironment( currentEnv );
 

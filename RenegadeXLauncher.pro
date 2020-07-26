@@ -36,7 +36,9 @@ SOURCES += main.cpp\
     json-objects/instructionentry.cpp \
     validationdialog.cpp \
     checksumdisplay.cpp \
-    filevalidator.cpp
+    filevalidator.cpp \
+    renxinstaller.cpp \
+    downloaddialog.cpp
 
 HEADERS  += mainwindow.h \
     serverlistmodel.h \
@@ -49,9 +51,12 @@ HEADERS  += mainwindow.h \
     renx-config.h \
     validationdialog.h \
     checksumdisplay.h \
-    filevalidator.h
+    filevalidator.h \
+    renxinstaller.h \
+    downloaddialog.h
 
 FORMS    += mainwindow.ui \
     settingsdialog.ui \
     validationdialog.ui \
-    checksumdisplay.ui
+    checksumdisplay.ui \
+    downloaddialog.ui

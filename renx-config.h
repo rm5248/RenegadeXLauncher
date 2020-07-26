@@ -11,4 +11,10 @@
  */
 std::shared_ptr<QSettings> renx_settings();
 
+/**
+ * Return the base install path of where ren-x is installed to.
+ * @return
+ */
+QString renx_baseInstallPath();
+
 #endif // RENXCONFIG_H

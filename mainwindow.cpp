@@ -3,12 +3,15 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QRandomGenerator>
+#include <QVariant>
+#include <QMessageBox>
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "json-objects/releaseinformation.h"
 #include "settingsdialog.h"
 #include "json-objects/instructionentry.h"
+#include "renx-config.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -81,7 +84,6 @@ void MainWindow::checkForUpdates(){
             return;
         }
 
-        QVector<ServerInformation> info;
         QJsonDocument jsonDoc = QJsonDocument::fromJson( reply->readAll() );
 
         if( jsonDoc.isNull() ){
@@ -94,6 +96,30 @@ void MainWindow::checkForUpdates(){
         m_releaseInfo = ri;
 
         qDebug() << "Latest game version is " << ri.gameInfo().version_number();
+
+        std::shared_ptr<QSettings> settings = renx_settings();
+        int installedVersion = settings->value( "installed-version", QVariant( 0 ) ).toInt();
+        if( ri.gameInfo().version_number() > installedVersion ){
+            m_installer.setMirrors( ri.gameInfo().mirrorInfo() );
+            m_installer.setPatchPath( ri.gameInfo().patch_path() );
+            m_installer.setInstructionsHash( ri.gameInfo().instructions_hash() );
+        }
+
+        QString installQuestion = QString( "Update available!  Installed: %1 Available: %2" )
+                .arg( installedVersion )
+                .arg( ri.gameInfo().version_number() );
+        QMessageBox::StandardButton response =
+                QMessageBox::question( this, "Update available!", installQuestion );
+
+        if( response == QMessageBox::Ok ){
+            qDebug() << "Starting install";
+
+            connect( &m_installer, &RenxInstaller::percentDownloaded,
+                     &m_downloadProgress, &DownloadDialog::downloadPercentageUpdated );
+
+            m_installer.start();
+            m_downloadProgress.open();
+        }
     });
 }
 

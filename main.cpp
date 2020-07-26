@@ -10,6 +10,12 @@ std::shared_ptr<QSettings> renx_settings(){
     return m_settings;
 }
 
+QString renx_baseInstallPath(){
+    return m_settings->value( "wine/wineprefix" ).toString()
+            + "/"
+            + m_settings->value( "wine/renx-install-path" ).toString();
+}
+
 static void initialize_settings(){
     m_settings = std::shared_ptr<QSettings>( new QSettings( "rm5248", "RenegadeXLauncher" ) );
 
