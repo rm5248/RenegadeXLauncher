@@ -159,7 +159,7 @@ void MainWindow::on_actionValidate_Install_triggered()
         reply->deleteLater();
 
         if( reply->error() != QNetworkReply::NoError ){
-            qDebug() << "Error: " << reply->errorString();
+            LOG4CXX_ERROR( logger, "Unable to download instructions: " << reply->errorString().toStdString() );
             return;
         }
 
@@ -167,7 +167,7 @@ void MainWindow::on_actionValidate_Install_triggered()
         QJsonDocument jsonDoc = QJsonDocument::fromJson( reply->readAll() );
 
         if( jsonDoc.isNull() ){
-            qDebug() << "Bad JSON document";
+            LOG4CXX_ERROR( logger, "Instructions info invalid JSON" );
             return;
         }
 

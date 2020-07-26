@@ -15,6 +15,12 @@ public:
     explicit ChecksumDisplay(QWidget *parent = nullptr);
     ~ChecksumDisplay();
 
+    void setFilename( QString filename );
+    void setExpected( QString expected );
+
+public slots:
+    void checksumCalculationCompleted( bool success, QString calculated );
+
 private:
     Ui::ChecksumDisplay *ui;
 };

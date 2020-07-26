@@ -22,6 +22,7 @@ QString renx_baseInstallPath(){
             + m_settings->value( "wine/renx-install-path" ).toString();
 
     path = path.replace( "~", QDir::homePath() );
+    path += "/";
 
     return path;
 }
