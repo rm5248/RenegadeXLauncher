@@ -42,6 +42,31 @@ static void initialize_settings(){
     }
 }
 
+static void qt_msg_handler(QtMsgType type, const QMessageLogContext& context, const QString& message ){
+    log4cxx::LoggerPtr qtLogger = log4cxx::Logger::getLogger( context.category );
+    log4cxx::spi::LocationInfo location( context.file, context.function, context.line );
+
+    switch( type ){
+    case QtMsgType::QtDebugMsg:
+        qtLogger->debug( message.toStdString(), location );
+        break;
+    case QtMsgType::QtWarningMsg:
+         qtLogger->warn( message.toStdString(), location );
+        break;
+#if QT_VERSION >= QT_VERSION_CHECK(5, 5, 0)
+    case QtMsgType::QtInfoMsg:
+        qtLogger->info( message.toStdString(), location );
+        break;
+#endif
+    case QtMsgType::QtCriticalMsg:
+        qtLogger->error( message.toStdString(), location );
+        break;
+    case QtMsgType::QtFatalMsg:
+        qtLogger->fatal( message.toStdString(), location );
+        std::abort();
+    }
+}
+
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
@@ -58,6 +83,7 @@ int main(int argc, char *argv[])
 
     QString logconfigFile = configLocation + "/logconfig.xml";
     log4cxx::xml::DOMConfigurator::configure( logconfigFile.toStdString() );
+    qInstallMessageHandler( qt_msg_handler );
 
     LOG4CXX_INFO( logger, "Renegade-X Launcher starting up" );
 
