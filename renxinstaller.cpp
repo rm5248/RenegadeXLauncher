@@ -210,7 +210,7 @@ void RenxInstaller::downloadFinished(){
 
 
         m_numFilesDownloaded++;
-        emit fileDownloadProgress( m_numFilesDownloaded, m_instructions.size() );
+        emit fileDownloadProgress( m_numFilesDownloaded, m_filesToDownload.size() );
     }
 
     delete m_currentDownloadTempFile;
