@@ -26,8 +26,12 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->serverTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
 
-    connect( &m_installer, &RenxInstaller::percentDownloaded,
+    connect( &m_installer, &RenxInstaller::totalPercentDownloaded,
+             &m_downloadProgress, &DownloadDialog::totalDownlaodPercentageUpdate );
+    connect( &m_installer, &RenxInstaller::filePercentDownloaded,
              &m_downloadProgress, &DownloadDialog::downloadPercentageUpdated );
+    connect( &m_installer, &RenxInstaller::fileDownloadProgress,
+             &m_downloadProgress, &DownloadDialog::numFilesDownloadProgress );
 }
 
 MainWindow::~MainWindow()

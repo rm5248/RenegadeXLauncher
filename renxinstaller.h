@@ -22,7 +22,9 @@ public:
     void setNetworkAccessManager( QNetworkAccessManager* network );
 
 signals:
-    void percentDownloaded( double );
+    void filePercentDownloaded( double );
+    void totalPercentDownloaded( double );
+    void fileDownloadProgress( int numFilesDownloaded, int totalNumberFiles );
     void done();
 
 public slots:
@@ -49,6 +51,7 @@ private:
     QNetworkReply* m_currentDownload;
     QFile* m_currentDownloadTempFile;
     InstructionEntry m_currentInstruction;
+    int m_numFilesDownloaded;
 };
 
 #endif // RENXINSTALLER_H

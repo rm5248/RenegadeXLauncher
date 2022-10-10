@@ -36,7 +36,7 @@
     </rect>
    </property>
    <property name="value">
-    <number>24</number>
+    <number>0</number>
    </property>
   </widget>
   <widget class="QLabel" name="label_2">
@@ -75,7 +75,20 @@
     </rect>
    </property>
    <property name="value">
-    <number>24</number>
+    <number>0</number>
+   </property>
+  </widget>
+  <widget class="QLabel" name="numFilesDl">
+   <property name="geometry">
+    <rect>
+     <x>200</x>
+     <y>130</y>
+     <width>67</width>
+     <height>19</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>TextLabel</string>
    </property>
   </widget>
  </widget>

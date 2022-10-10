@@ -77,7 +77,7 @@ void RenxInstaller::start(){
         // Now we need to figure out if there are files that have changed.
         determineDifferences();
 
-        emit percentDownloaded( 0 );
+        emit totalPercentDownloaded( 0 );
 
         // Start the download for the next file
         downloadNextFile();
@@ -88,6 +88,7 @@ void RenxInstaller::determineDifferences(){
     QDir baseDir = renx_baseInstallPath();
     m_bytesToDownload = 0;
     m_currentBytesDownloaded = 0;
+    m_numFilesDownloaded = 0;
 
     for( InstructionEntry entry : m_instructions ){
         QFile file( baseDir.path() + "/" + entry.path() );
@@ -116,9 +117,12 @@ void RenxInstaller::downloadNextFile(){
     QNetworkRequest req;
 
     if( m_filesToDownload.empty() ){
-        emit percentDownloaded( 100.0 );
+        emit totalPercentDownloaded( 100.0 );
+        emit filePercentDownloaded( 100.0 );
         return;
     }
+
+    emit filePercentDownloaded( 0.0 );
 
     m_currentInstruction = m_filesToDownload.dequeue();
     QString nextDownloadFileName = m_currentInstruction.newHash();
@@ -146,6 +150,10 @@ void RenxInstaller::downloadNextFile(){
              this, &RenxInstaller::downloadReadyRead );
     connect( m_currentDownload, &QNetworkReply::finished,
              this, &RenxInstaller::downloadFinished );
+    connect( m_currentDownload, &QNetworkReply::downloadProgress,
+             [this](qint64 bytesRx, qint64 totalBytes){
+        emit filePercentDownloaded( bytesRx / totalBytes * 100.0 );
+    });
 }
 
 void RenxInstaller::downloadReadyRead(){
@@ -162,12 +170,14 @@ void RenxInstaller::downloadReadyRead(){
                    << " = "
                    << percent
                    << "%" );
-    emit percentDownloaded( percent );
+    emit totalPercentDownloaded( percent );
 }
 
 void RenxInstaller::downloadFinished(){
     m_currentDownload->deleteLater();
     m_currentDownloadTempFile->close();
+
+    emit filePercentDownloaded(100.0);
 
     if( m_currentDownload->error() != QNetworkReply::NoError ){
         LOG4CXX_ERROR( logger, "Unable to download file!" );
@@ -197,6 +207,10 @@ void RenxInstaller::downloadFinished(){
                        << " to "
                        << endingInfo.absoluteFilePath().toStdString() );
         m_currentDownloadTempFile->rename( endingInfo.absoluteFilePath() );
+
+
+        m_numFilesDownloaded++;
+        emit fileDownloadProgress( m_numFilesDownloaded, m_instructions.size() );
     }
 
     delete m_currentDownloadTempFile;

@@ -14,9 +14,15 @@ DownloadDialog::~DownloadDialog()
 }
 
 void DownloadDialog::downloadPercentageUpdated( double percentage ){
-    ui->progressBar->setValue( percentage );
+    int val = percentage;
+    ui->progressBar->setValue( val );
 }
 
 void DownloadDialog::totalDownlaodPercentageUpdate( double percent ){
-    ui->totalProgessbar->setValue( percent );
+    int val = percent;
+    ui->totalProgessbar->setValue( val );
+}
+
+void DownloadDialog::numFilesDownloadProgress( int numFilesDl, int totalNumFiles ){
+    ui->numFilesDl->setText( QString( "%1/%2").arg( numFilesDl ).arg( totalNumFiles ) );
 }
