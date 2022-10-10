@@ -71,6 +71,7 @@
     <property name="title">
      <string>Launcher</string>
     </property>
+    <addaction name="actionLaunch_Game"/>
     <addaction name="actionSettings"/>
     <addaction name="actionInstall"/>
     <addaction name="actionValidate_Install"/>
@@ -96,6 +97,11 @@
   <action name="actionInstall">
    <property name="text">
     <string>Install</string>
+   </property>
+  </action>
+  <action name="actionLaunch_Game">
+   <property name="text">
+    <string>Launch Game</string>
    </property>
   </action>
  </widget>

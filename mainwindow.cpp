@@ -81,7 +81,7 @@ void MainWindow::on_refreshButton_clicked()
 
 void MainWindow::checkForUpdates(){
     QNetworkRequest req;
-    req.setUrl( QUrl( "https://static.renegade-x.com/launcher_data/version/release.json" ) );
+    req.setUrl( QUrl( "https://static.ren-x.com/launcher_data/version/release.json" ) );
 
     QNetworkReply* reply = m_network.get( req );
     connect( reply, &QNetworkReply::finished, [reply,this](){
@@ -186,4 +186,10 @@ void MainWindow::on_actionInstall_triggered()
 {
     m_installer.start();
     m_downloadProgress.open();
+}
+
+void MainWindow::on_actionLaunch_Game_triggered()
+{
+    //WINEPREFIX=~/.wine-renx/ winetricks d9vk040 corefonts vcrun2008 vcrun2010 xact win7 dotnet452
+    //winetricks corefonts vcrun2008 vcrun2010 xact xact_x64 d3dx9 d3dx9_43 msxml3 dotnet452 win7
 }

@@ -16,3 +16,7 @@ DownloadDialog::~DownloadDialog()
 void DownloadDialog::downloadPercentageUpdated( double percentage ){
     ui->progressBar->setValue( percentage );
 }
+
+void DownloadDialog::totalDownlaodPercentageUpdate( double percent ){
+    ui->totalProgessbar->setValue( percent );
+}

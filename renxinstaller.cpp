@@ -69,6 +69,9 @@ void RenxInstaller::start(){
         QJsonArray installationArray = jsonDoc.array();
         for( QJsonValue obj : installationArray ){
             m_instructions.push_back( InstructionEntry( obj.toObject() ) );
+            if( m_instructions.last().oldHash().isEmpty() ){
+                LOG4CXX_ERROR( logger, "bbb" );
+            }
         }
 
         // Now we need to figure out if there are files that have changed.
@@ -171,6 +174,10 @@ void RenxInstaller::downloadFinished(){
     }else{
         LOG4CXX_DEBUG( logger, "File downloaded successfully" );
 
+        if( m_currentInstruction.path().isEmpty() ){
+            LOG4CXX_ERROR( logger, "current instruction path empty!" );
+        }
+
         QFile endingFile( renx_baseInstallPath() + "/" + m_currentInstruction.path() );
         QFileInfo endingInfo( endingFile );
 
@@ -184,8 +191,9 @@ void RenxInstaller::downloadFinished(){
             }
         }
 
+        // TODO actually need to do xdelta here
         LOG4CXX_DEBUG( logger, "Renaming downloaded file "
-                       << m_currentInstruction.oldHash().toStdString()
+                       << m_currentInstruction.newHash().toStdString()
                        << " to "
                        << endingInfo.absoluteFilePath().toStdString() );
         m_currentDownloadTempFile->rename( endingInfo.absoluteFilePath() );

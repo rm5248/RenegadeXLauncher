@@ -17,6 +17,7 @@ public:
 
 public slots:
     void downloadPercentageUpdated( double percent );
+    void totalDownlaodPercentageUpdate( double percent );
 
 private:
     Ui::DownloadDialog *ui;

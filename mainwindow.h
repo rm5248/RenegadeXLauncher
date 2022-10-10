@@ -37,6 +37,8 @@ private slots:
 
     void on_actionInstall_triggered();
 
+    void on_actionLaunch_Game_triggered();
+
 private:
     Ui::MainWindow *ui;
     QNetworkAccessManager m_network;
