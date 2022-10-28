@@ -28,6 +28,7 @@ unix: CONFIG += pkgconfig link_pkgconfig
 unix: PKGCONFIG += liblog4cxx
 
 SOURCES += main.cpp\
+    filepatcher.cpp \
         mainwindow.cpp \
     serverlistmodel.cpp \
     json-objects/serverinformation.cpp \
@@ -43,6 +44,7 @@ SOURCES += main.cpp\
     downloaddialog.cpp
 
 HEADERS  += mainwindow.h \
+    filepatcher.h \
     serverlistmodel.h \
     json-objects/serverinformation.h \
     json-objects/releaseinformation.h \

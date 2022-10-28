@@ -35,13 +35,13 @@ void ValidationDialog::setValidationData( QVector<InstructionEntry> entries ){
     for( InstructionEntry instr : entries ){
         ChecksumDisplay* newChecksumDisplay = new ChecksumDisplay( this );
         FileValidator* validator = new FileValidator( basePath + instr.path(),
-                                                      instr.compressedHash() );
+                                                      instr.newHash() );
 
         filesToValidate.push_back( validator );
         validator->moveToThread( &m_checksumThread );
 
         newChecksumDisplay->setFilename( instr.path() );
-        newChecksumDisplay->setExpected( instr.compressedHash() );
+        newChecksumDisplay->setExpected( instr.newHash() );
 
         connect( validator, &FileValidator::checksumCompleted,
                  newChecksumDisplay, &ChecksumDisplay::checksumCalculationCompleted );

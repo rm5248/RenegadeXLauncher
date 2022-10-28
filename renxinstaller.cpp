@@ -10,6 +10,7 @@
 
 #include "renxinstaller.h"
 #include "renx-config.h"
+#include "filepatcher.h"
 
 static log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger( "com.rm5248.RenegadeXLauncher.RenxInstaller" );
 
@@ -201,12 +202,22 @@ void RenxInstaller::downloadFinished(){
             }
         }
 
+        FilePatcher* fpatch = new FilePatcher();
+        QFileInfo fi(*m_currentDownloadTempFile);
+        fpatch->setInputFile( fi.absoluteFilePath() );
+        fpatch->setOutputFile( endingInfo.absoluteFilePath() );
+        connect( fpatch, &FilePatcher::filePatched,
+                 [fpatch](){
+           LOG4CXX_DEBUG( logger, "File patched!" );
+           fpatch->deleteLater();
+        });
+        fpatch->doPatch();
         // TODO actually need to do xdelta here
-        LOG4CXX_DEBUG( logger, "Renaming downloaded file "
-                       << m_currentInstruction.newHash().toStdString()
-                       << " to "
-                       << endingInfo.absoluteFilePath().toStdString() );
-        m_currentDownloadTempFile->rename( endingInfo.absoluteFilePath() );
+//        LOG4CXX_DEBUG( logger, "Renaming downloaded file "
+//                       << m_currentInstruction.newHash().toStdString()
+//                       << " to "
+//                       << endingInfo.absoluteFilePath().toStdString() );
+//        m_currentDownloadTempFile->rename( endingInfo.absoluteFilePath() );
 
 
         m_numFilesDownloaded++;

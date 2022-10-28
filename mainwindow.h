@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QNetworkAccessManager>
+#include <QProcess>
 
 #include "serverlistmodel.h"
 #include "json-objects/releaseinformation.h"
@@ -39,6 +40,8 @@ private slots:
 
     void on_actionLaunch_Game_triggered();
 
+    void on_actionPerform_Winetricks_triggered();
+
 private:
     Ui::MainWindow *ui;
     QNetworkAccessManager m_network;
@@ -47,6 +50,8 @@ private:
     ValidationDialog m_validationDialog;
     RenxInstaller m_installer;
     DownloadDialog m_downloadProgress;
+    QProcess m_game;
+    QProcess m_winetricks;
 };
 
 #endif // MAINWINDOW_H

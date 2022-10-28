@@ -72,6 +72,7 @@
      <string>Launcher</string>
     </property>
     <addaction name="actionLaunch_Game"/>
+    <addaction name="actionPerform_Winetricks"/>
     <addaction name="actionSettings"/>
     <addaction name="actionInstall"/>
     <addaction name="actionValidate_Install"/>
@@ -102,6 +103,11 @@
   <action name="actionLaunch_Game">
    <property name="text">
     <string>Launch Game</string>
+   </property>
+  </action>
+  <action name="actionPerform_Winetricks">
+   <property name="text">
+    <string>Perform Winetricks</string>
    </property>
   </action>
  </widget>
