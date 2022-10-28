@@ -71,6 +71,13 @@
        </spacer>
       </item>
       <item>
+       <widget class="QPushButton" name="launchWinetricks">
+        <property name="text">
+         <string>Launch Winetricks</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="launchWinecfg">
         <property name="text">
          <string>Launch Winecfg</string>
@@ -113,6 +120,22 @@
      <property name="text">
       <string>Use 64-bit?</string>
      </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QWidget" name="widget_4" native="true">
+     <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <item>
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Username:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="username"/>
+      </item>
+     </layout>
     </widget>
    </item>
    <item>

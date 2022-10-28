@@ -23,9 +23,12 @@ private slots:
 
     void on_launchWinecfg_clicked();
 
+    void on_launchWinetricks_clicked();
+
 private:
     Ui::SettingsDialog *ui;
     QProcess m_winecfg;
+    QProcess m_winetricks;
 };
 
 #endif // SETTINGSDIALOG_H

@@ -270,7 +270,13 @@ void MainWindow::on_serverTable_doubleClicked(const QModelIndex &index)
     ServerInformation si = m_model.serverInformationAtRow(index.row());
 
     QStringList extraArgs;
-    extraArgs.append( QString("%1:%2").arg(si.getIP()).arg(si.getPort()) );
+    QString extraArg = QString("%1:%2").arg(si.getIP()).arg(si.getPort());
+    std::shared_ptr<QSettings> settings = renx_settings();
+    QVariant username = settings->value( "username" );
+    if( username.isValid() ){
+        extraArg.append( "?Name=" + username.toString() );
+    }
+    extraArgs.append( extraArg );
 
     launchGame( extraArgs );
 }
@@ -286,7 +292,13 @@ void MainWindow::launchGame(QStringList extraArgs){
 
     QStringList processArgs;
 
-    QFile udkExe( renx_baseInstallPath() + "/Binaries/Win64/UDK.exe" );
+    QString udkExeStr( "/Binaries/%1/UDK.exe" );
+    if( settings->value( "use-64bit", "false" ).toBool() ){
+        udkExeStr = udkExeStr.arg( "Win32" );
+    }else{
+        udkExeStr = udkExeStr.arg( "Win64" );
+    }
+    QFile udkExe( renx_baseInstallPath() + udkExeStr );
     QFileInfo fi(udkExe);
 
     LOG4CXX_DEBUG(logger, "Absolute path: " << fi.absoluteFilePath().toStdString() );
