@@ -42,6 +42,11 @@ private slots:
 
     void on_actionPerform_Winetricks_triggered();
 
+    void on_serverTable_doubleClicked(const QModelIndex &index);
+
+private:
+    void launchGame(QStringList extraArgs);
+
 private:
     Ui::MainWindow *ui;
     QNetworkAccessManager m_network;

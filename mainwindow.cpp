@@ -88,6 +88,8 @@ void MainWindow::refresh(){
         QVector<ServerInformation> info;
         QJsonDocument jsonDoc = QJsonDocument::fromJson( reply->readAll() );
 
+        LOG4CXX_DEBUG( logger, "Server JSON data: " << jsonDoc.toJson().toStdString() );
+
         if( jsonDoc.isNull() ){
             LOG4CXX_ERROR( logger, "Server list not valid JSON" );
             return;
@@ -226,27 +228,15 @@ void MainWindow::on_actionInstall_triggered()
 
 void MainWindow::on_actionLaunch_Game_triggered()
 {
-    std::shared_ptr<QSettings> settings = renx_settings();
-
-    QProcessEnvironment currentEnv = QProcessEnvironment::systemEnvironment();
-    QString installDir = settings->value( "wine/wineprefix" ).toString();
-    installDir.replace( "~", QDir::homePath() );
-    installDir.append( "/" );
-    currentEnv.insert( "WINEPREFIX", installDir );
-
-    QStringList processArgs;
-    processArgs.append( settings->value("wine/renx-install-path").toString() + "/Binaries/Win64/UDK.exe" );
-
-    m_game.setProcessEnvironment( currentEnv );
-    m_game.setProgram( "wine" );
-    m_game.setArguments( processArgs );
-    m_game.start();
+    launchGame(QStringList());
 }
 
 void MainWindow::on_actionPerform_Winetricks_triggered()
 {
     //WINEPREFIX=~/.wine-renx/ winetricks d9vk040 corefonts vcrun2008 vcrun2010 xact win7 dotnet452
     //winetricks corefonts vcrun2008 vcrun2010 xact xact_x64 d3dx9 d3dx9_43 msxml3 dotnet452 win7
+    // 2022-10-28: also did winetricks with d9vk. possibly dxvk works fine now too
+
     QStringList winetricksArgs;
     winetricksArgs
             << "corefonts"
@@ -272,4 +262,41 @@ void MainWindow::on_actionPerform_Winetricks_triggered()
     m_winetricks.setProgram( "winetricks" );
     m_winetricks.setArguments( winetricksArgs );
     m_winetricks.start();
+}
+
+void MainWindow::on_serverTable_doubleClicked(const QModelIndex &index)
+{
+    LOG4CXX_DEBUG(logger, "Launching game");
+    ServerInformation si = m_model.serverInformationAtRow(index.row());
+
+    QStringList extraArgs;
+    extraArgs.append( QString("%1:%2").arg(si.getIP()).arg(si.getPort()) );
+
+    launchGame( extraArgs );
+}
+
+void MainWindow::launchGame(QStringList extraArgs){
+    std::shared_ptr<QSettings> settings = renx_settings();
+
+    QProcessEnvironment currentEnv = QProcessEnvironment::systemEnvironment();
+    QString installDir = settings->value( "wine/wineprefix" ).toString();
+    installDir.replace( "~", QDir::homePath() );
+    installDir.append( "/" );
+    currentEnv.insert( "WINEPREFIX", installDir );
+
+    QStringList processArgs;
+
+    QFile udkExe( renx_baseInstallPath() + "/Binaries/Win64/UDK.exe" );
+    QFileInfo fi(udkExe);
+
+    LOG4CXX_DEBUG(logger, "Absolute path: " << fi.absoluteFilePath().toStdString() );
+
+    processArgs.append( fi.absoluteFilePath() );
+    processArgs.append( extraArgs );
+    processArgs.append( "-nomovies" );
+
+    m_game.setProcessEnvironment( currentEnv );
+    m_game.setProgram( "wine" );
+    m_game.setArguments( processArgs );
+    m_game.start();
 }

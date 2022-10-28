@@ -20,6 +20,8 @@ public:
 
     void setServerInformation( QVector<ServerInformation> information );
 
+    ServerInformation serverInformationAtRow(int row);
+
 private:
     QVector<ServerInformation> m_serverInformation;
 };

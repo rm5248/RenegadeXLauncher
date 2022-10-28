@@ -67,3 +67,7 @@ QVariant ServerListModel::headerData(int section, Qt::Orientation orientation, i
 
     return QVariant();
 }
+
+ServerInformation ServerListModel::serverInformationAtRow(int row){
+    return m_serverInformation[row];
+}

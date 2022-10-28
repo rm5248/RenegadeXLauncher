@@ -15,6 +15,8 @@ public:
     QString getMap();
     int getPlayers();
     int getMaxPlayers();
+    QString getIP();
+    int getPort();
 
 private:
     QString m_serverName;
@@ -23,6 +25,8 @@ private:
     int m_players;
     int m_maxPlayers;
     bool m_isValid;
+    QString m_ip;
+    int m_port;
 };
 
 #endif // SERVERINFORMATION_H

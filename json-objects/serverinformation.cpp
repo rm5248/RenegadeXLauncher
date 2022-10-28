@@ -19,6 +19,9 @@ ServerInformation::ServerInformation( QJsonObject object ) :
     if( !ok ) m_isValid = false;
     m_maxPlayers = object[ QString("Variables") ].toObject()[ "Player Limit" ].toVariant().toInt( &ok );
     if( !ok ) m_isValid = false;
+    m_ip = object[ QString("IP") ].toString();
+    m_port = object[ QString("Port") ].toVariant().toInt( &ok );
+    if( !ok ) m_isValid = false;
 }
 
 bool ServerInformation::isValid(){
@@ -39,4 +42,12 @@ int ServerInformation::getPlayers(){
 
 int ServerInformation::getMaxPlayers(){
     return m_maxPlayers;
+}
+
+QString ServerInformation::getIP(){
+    return m_ip;
+}
+
+int ServerInformation::getPort(){
+    return m_port;
 }
