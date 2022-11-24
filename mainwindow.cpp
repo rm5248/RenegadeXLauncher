@@ -63,6 +63,18 @@ MainWindow::MainWindow(QWidget *parent) :
     connect( &m_game, &QProcess::finished,
              [this](int exitCode, QProcess::ExitStatus stat){
         LOG4CXX_DEBUG(logger_wine, "Wine exited, code " << exitCode );
+        ui->statusBar->showMessage( "Game exited", 8000 );
+    });
+    connect( &m_game, &QProcess::started,
+             [this](){
+        ui->statusBar->showMessage( "Game running" );
+    });
+
+    connect( &m_installer, &RenxInstaller::allFilesDownloaded,
+             [this](){
+        int versionNumber = m_releaseInfo.gameInfo().version_number();
+        std::shared_ptr<QSettings> settings = renx_settings();
+        settings->setValue( "installed-version", versionNumber );
     });
 }
 
@@ -295,8 +307,10 @@ void MainWindow::launchGame(QStringList extraArgs){
     QString udkExeStr( "/Binaries/%1/UDK.exe" );
     if( settings->value( "use-64bit", "false" ).toBool() ){
         udkExeStr = udkExeStr.arg( "Win32" );
+        currentEnv.insert( "LD_PRELOAD", QDir::homePath() + "/.local/share/Steam/ubuntu12_32/gameoverlayrenderer.so" );
     }else{
         udkExeStr = udkExeStr.arg( "Win64" );
+        currentEnv.insert( "LD_PRELOAD", QDir::homePath() + "/.local/share/Steam/ubuntu12_32/gameoverlayrenderer.so" );
     }
     QFile udkExe( renx_baseInstallPath() + udkExeStr );
     QFileInfo fi(udkExe);

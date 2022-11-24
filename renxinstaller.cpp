@@ -120,6 +120,7 @@ void RenxInstaller::downloadNextFile(){
     if( m_filesToDownload.empty() ){
         emit totalPercentDownloaded( 100.0 );
         emit filePercentDownloaded( 100.0 );
+        emit allFilesDownloaded();
         return;
     }
 
@@ -212,12 +213,6 @@ void RenxInstaller::downloadFinished(){
            fpatch->deleteLater();
         });
         fpatch->doPatch();
-        // TODO actually need to do xdelta here
-//        LOG4CXX_DEBUG( logger, "Renaming downloaded file "
-//                       << m_currentInstruction.newHash().toStdString()
-//                       << " to "
-//                       << endingInfo.absoluteFilePath().toStdString() );
-//        m_currentDownloadTempFile->rename( endingInfo.absoluteFilePath() );
 
 
         m_numFilesDownloaded++;

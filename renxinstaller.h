@@ -25,7 +25,7 @@ signals:
     void filePercentDownloaded( double );
     void totalPercentDownloaded( double );
     void fileDownloadProgress( int numFilesDownloaded, int totalNumberFiles );
-    void done();
+    void allFilesDownloaded();
 
 public slots:
     void start();
