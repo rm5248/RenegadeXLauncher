@@ -5,6 +5,7 @@
 #include <QNetworkAccessManager>
 #include <QQueue>
 #include <QFile>
+#include <QThread>
 
 #include "json-objects/gameinfo.h"
 #include "json-objects/instructionentry.h"
@@ -52,6 +53,7 @@ private:
     QFile* m_currentDownloadTempFile;
     InstructionEntry m_currentInstruction;
     int m_numFilesDownloaded;
+    QThread m_checksumThread;
 };
 
 #endif // RENXINSTALLER_H

@@ -7,6 +7,11 @@
 #include "filevalidator.h"
 #include "renx-config.h"
 
+#include <log4cxx/logger.h>
+#include <log4cxx/logmanager.h>
+
+static log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger( "com.rm5248.RenegadeXLauncher.ValidationDialog" );
+
 ValidationDialog::ValidationDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ValidationDialog)
@@ -33,7 +38,7 @@ void ValidationDialog::setValidationData( QVector<InstructionEntry> entries ){
     ui->totalFiles->setText( QString::number( m_totalFiles ) );
 
     for( InstructionEntry instr : entries ){
-        ChecksumDisplay* newChecksumDisplay = new ChecksumDisplay( this );
+        ChecksumDisplay* newChecksumDisplay = new ChecksumDisplay( toInsert );
         FileValidator* validator = new FileValidator( basePath + instr.path(),
                                                       instr.newHash() );
 
@@ -80,4 +85,50 @@ void ValidationDialog::checksumCompleted(bool good, QString){
     if( m_hashedFiles == m_totalFiles ){
         m_checksumThread.quit();
     }
+
+    resortFiles();
+}
+
+void ValidationDialog::on_goodRadio_clicked()
+{
+    resortFiles();
+}
+
+void ValidationDialog::resortFiles(){
+    QWidget* parent = ui->scrollArea->widget();
+
+    QList<ChecksumDisplay*> children = parent->findChildren<ChecksumDisplay*>();
+    LOG4CXX_DEBUG( logger, "Found " << children.size() << " checksum children" );
+
+    if( ui->allRadio->isChecked() ){
+        for( ChecksumDisplay* disp : children ){
+            disp->setVisible( true );
+        }
+    }else if( ui->badRadio->isChecked() ){
+        for( ChecksumDisplay* disp : children ){
+            if( disp->checksumState() == ChecksumDisplay::ChecksumState::Bad ){
+                disp->setVisible(true);
+            }else{
+                disp->setVisible(false);
+            }
+        }
+    }else if( ui->goodRadio->isChecked() ){
+        for( ChecksumDisplay* disp : children ){
+            if( disp->checksumState() == ChecksumDisplay::ChecksumState::Good ){
+                disp->setVisible(true);
+            }else{
+                disp->setVisible(false);
+            }
+        }
+    }
+}
+
+void ValidationDialog::on_badRadio_clicked()
+{
+    resortFiles();
+}
+
+void ValidationDialog::on_allRadio_clicked()
+{
+    resortFiles();
 }

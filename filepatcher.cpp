@@ -27,7 +27,8 @@ void FilePatcher::doPatch(){
 
     if( outputFileinfo.exists() ){
         isPatch = true;
-        LOG4CXX_WARN( logger, "Output file exists, this may fail" );
+        LOG4CXX_WARN( logger, "Output file exists, deleting" );
+        outputFile.remove();
     }
 
     QStringList args;
@@ -46,4 +47,12 @@ void FilePatcher::finished(int exitCode, QProcess::ExitStatus status){
     }
 
     emit filePatched();
+}
+
+QString FilePatcher::inputFile() const{
+    return m_inputFile;
+}
+
+QString FilePatcher::outputFile() const{
+    return m_outputFile;
 }

@@ -11,6 +11,7 @@
 #include "renxinstaller.h"
 #include "renx-config.h"
 #include "filepatcher.h"
+#include "filevalidator.h"
 
 static log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger( "com.rm5248.RenegadeXLauncher.RenxInstaller" );
 
@@ -94,24 +95,52 @@ void RenxInstaller::determineDifferences(){
     for( InstructionEntry entry : m_instructions ){
         QFile file( baseDir.path() + "/" + entry.path() );
 
+        if( entry.newHash().isEmpty() ){
+            LOG4CXX_DEBUG( logger, "File " << entry.path().toStdString()
+                           << " has empty new hash, deleting" );
+            file.remove();
+            continue;
+        }
+
         if( !file.exists() ){
+            LOG4CXX_DEBUG( logger, "File " << entry.path().toStdString()
+                           << " does not exist, downloading" );
             m_bytesToDownload += entry.fullReplaceSize();
             m_filesToDownload.append( entry );
             continue;
         }
 
-        QFileInfo finfo( file );
-        if( finfo.size() != entry.fullReplaceSize() ){
-            m_bytesToDownload += entry.fullReplaceSize();
-            m_filesToDownload.append( entry );
-            continue;
-        }
+        // Checksum the file, see if it is different.
+        QFileInfo fi(file);
+        FileValidator* validator = new FileValidator( fi.absoluteFilePath(),
+                                                      entry.newHash() );
+        validator->moveToThread( &m_checksumThread );
 
-        LOG4CXX_DEBUG( logger, "File " <<
-                       finfo.absoluteFilePath().toStdString()
-                       << " is good, not downloading"
-                       );
+        connect( validator, &FileValidator::checksumCompleted,
+                 [this,entry]( bool success, QString ){
+            QDir baseDir = renx_baseInstallPath();
+            QFile file( baseDir.path() + "/" + entry.path() );
+            QFileInfo finfo( file );
+
+            if( !success ){
+                LOG4CXX_DEBUG( logger, "File " << finfo.absoluteFilePath().toStdString()
+                               << " checksum did not match, downloading" );
+                m_filesToDownload.push_back(entry);
+
+                // try to download the next file if we are not downloading anything
+                downloadNextFile();
+            }
+                 });
+        connect( validator, &FileValidator::checksumCompleted,
+                 [validator](){
+            validator->deleteLater();
+        }
+                 );
+        connect( &m_checksumThread, &QThread::started,
+                 validator, &FileValidator::startChecksum );
     }
+
+    m_checksumThread.start();
 }
 
 void RenxInstaller::downloadNextFile(){
@@ -121,6 +150,10 @@ void RenxInstaller::downloadNextFile(){
         emit totalPercentDownloaded( 100.0 );
         emit filePercentDownloaded( 100.0 );
         emit allFilesDownloaded();
+        return;
+    }
+
+    if( m_currentDownloadTempFile ){
         return;
     }
 
@@ -209,7 +242,10 @@ void RenxInstaller::downloadFinished(){
         fpatch->setOutputFile( endingInfo.absoluteFilePath() );
         connect( fpatch, &FilePatcher::filePatched,
                  [fpatch](){
-           LOG4CXX_DEBUG( logger, "File patched!" );
+           LOG4CXX_DEBUG( logger, "File patched! "
+                          << fpatch->inputFile().toStdString()
+                          << " -> "
+                          << fpatch->outputFile().toStdString() );
            fpatch->deleteLater();
         });
         fpatch->doPatch();
@@ -220,6 +256,7 @@ void RenxInstaller::downloadFinished(){
     }
 
     delete m_currentDownloadTempFile;
+    m_currentDownloadTempFile = nullptr;
 
     downloadNextFile();
 }

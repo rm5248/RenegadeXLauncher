@@ -23,6 +23,16 @@ public:
     void setValidationData( QVector<InstructionEntry> );
     void checksumCompleted( bool, QString );
 
+private slots:
+    void on_goodRadio_clicked();
+
+    void on_badRadio_clicked();
+
+    void on_allRadio_clicked();
+
+private:
+    void resortFiles();
+
 private:
     Ui::ValidationDialog *ui;
     QVector<InstructionEntry> m_installEntries;

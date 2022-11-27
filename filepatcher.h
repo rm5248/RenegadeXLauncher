@@ -14,6 +14,8 @@ public:
     void setInputFile(QString absolutePath);
     void setOutputFile(QString absolutePath);
     void doPatch();
+    QString inputFile() const;
+    QString outputFile() const;
 
 signals:
     void filePatched();
