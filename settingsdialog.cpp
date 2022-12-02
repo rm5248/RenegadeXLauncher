@@ -48,6 +48,8 @@ void SettingsDialog::settingsAccepted(){
     settings->setValue( "wine/renx-install-path", ui->installLocation->text() );
     settings->setValue( "use-64bit", ui->use64Bit->isChecked() );
     settings->setValue( "username", ui->username->text() );
+    settings->setValue( "dxvk/devinfo", ui->dxvk_gpu->isChecked() );
+    settings->setValue( "dxvk/fps", ui->dxvk_fps->isChecked() );
 }
 
 void SettingsDialog::on_launchWinecfg_clicked()

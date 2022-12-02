@@ -302,6 +302,23 @@ void MainWindow::launchGame(QStringList extraArgs){
     installDir.append( "/" );
     currentEnv.insert( "WINEPREFIX", installDir );
 
+    QStringList dxvkSettings;
+    if( settings->value( "dxvk/devinfo", "false" ).toBool() ){
+        dxvkSettings.push_back( "devinfo" );
+    }
+    if( settings->value( "dxvk/fps", "false" ).toBool() ){
+        dxvkSettings.push_back( "fps" );
+    }
+    if( !dxvkSettings.isEmpty() ){
+        QString fullSettings;
+        for( QString str : dxvkSettings ){
+            fullSettings.append( str );
+            fullSettings.append( "," );
+        }
+        fullSettings.remove( fullSettings.size() - 1, 1 );
+        currentEnv.insert( "DXVK_HUD", fullSettings );
+    }
+
     QStringList processArgs;
 
     QString udkExeStr( "/Binaries/%1/UDK.exe" );
