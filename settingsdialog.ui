@@ -142,6 +142,13 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QCheckBox" name="dxvk_version">
+        <property name="text">
+         <string>Show DXVK Version</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>

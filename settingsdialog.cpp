@@ -26,6 +26,9 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     ui->wineprefix->setText( wineLocation );
     ui->installLocation->setText( settings->value( "wine/renx-install-path" ).toString() );
     ui->username->setText( settings->value( "username" ).toString() );
+    ui->dxvk_gpu->setChecked( settings->value( "dxvk/devinfo", "false" ).toBool() );
+    ui->dxvk_fps->setChecked( settings->value( "dxvk/fps", "false" ).toBool() );
+    ui->dxvk_version->setChecked( settings->value( "dxvk/version", "false" ).toBool() );
 
     connect( this, &QDialog::accepted,
              this, &SettingsDialog::settingsAccepted );
@@ -50,6 +53,7 @@ void SettingsDialog::settingsAccepted(){
     settings->setValue( "username", ui->username->text() );
     settings->setValue( "dxvk/devinfo", ui->dxvk_gpu->isChecked() );
     settings->setValue( "dxvk/fps", ui->dxvk_fps->isChecked() );
+    settings->setValue( "dxvk/version", ui->dxvk_version->isChecked() );
 }
 
 void SettingsDialog::on_launchWinecfg_clicked()

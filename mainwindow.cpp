@@ -85,8 +85,8 @@ MainWindow::~MainWindow()
 
 void MainWindow::refresh(){
     QNetworkRequest req;
-    req.setUrl( QUrl( "https://serverlist.ren-x.com/servers.jsp?id=launcher HTTP/1.1" ) );
-    req.setRawHeader( "User-Agent:", "RenX-Launcher (0.84)" );
+    req.setUrl( QUrl( "https://serverlist-rx.totemarts.services/servers.jsp?id=launcher HTTP/1.1" ) );
+//    req.setRawHeader( "User-Agent:", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) ta-games-launcher/1.0.12 Chrome/106.0.5249.181 Electron/21.3.0 Safari/537.36" );
 
     QNetworkReply* reply = m_network.get( req );
     connect( reply, &QNetworkReply::finished, [reply,this](){
@@ -308,6 +308,9 @@ void MainWindow::launchGame(QStringList extraArgs){
     }
     if( settings->value( "dxvk/fps", "false" ).toBool() ){
         dxvkSettings.push_back( "fps" );
+    }
+    if( settings->value( "dxvk/version", "false" ).toBool() ){
+        dxvkSettings.push_back( "version" );
     }
     if( !dxvkSettings.isEmpty() ){
         QString fullSettings;
