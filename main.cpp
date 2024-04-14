@@ -44,7 +44,7 @@ static void initialize_settings(){
 
 static void qt_msg_handler(QtMsgType type, const QMessageLogContext& context, const QString& message ){
     log4cxx::LoggerPtr qtLogger = log4cxx::Logger::getLogger( context.category );
-    log4cxx::spi::LocationInfo location( context.file, context.function, context.line );
+    log4cxx::spi::LocationInfo location( context.file, context.file, context.function, context.line );
 
     switch( type ){
     case QtMsgType::QtDebugMsg:

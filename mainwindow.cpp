@@ -131,7 +131,7 @@ void MainWindow::on_refreshButton_clicked()
 
 void MainWindow::checkForUpdates(){
     QNetworkRequest req;
-    req.setUrl( QUrl( "https://static.ren-x.com/launcher_data/version/release.json" ) );
+    req.setUrl( QUrl( "http://version.totemarts.services/release.json" ) );
 
     QNetworkReply* reply = m_network.get( req );
     connect( reply, &QNetworkReply::finished, [reply,this](){
@@ -261,6 +261,7 @@ void MainWindow::on_actionPerform_Winetricks_triggered()
             << "msxml3"
             << "dotnet452"
             << "win7";
+//            << "dxvk";
 
     std::shared_ptr<QSettings> settings = renx_settings();
 
@@ -301,6 +302,7 @@ void MainWindow::launchGame(QStringList extraArgs){
     installDir.replace( "~", QDir::homePath() );
     installDir.append( "/" );
     currentEnv.insert( "WINEPREFIX", installDir );
+    currentEnv.insert( "STEAM_RUNTIME", "/home/rob/.local/share/Steam/ubuntu12_64/steam-runtime-heavy" );
 
     QStringList dxvkSettings;
     if( settings->value( "dxvk/devinfo", "false" ).toBool() ){
@@ -330,7 +332,7 @@ void MainWindow::launchGame(QStringList extraArgs){
         currentEnv.insert( "LD_PRELOAD", QDir::homePath() + "/.local/share/Steam/ubuntu12_32/gameoverlayrenderer.so" );
     }else{
         udkExeStr = udkExeStr.arg( "Win64" );
-        currentEnv.insert( "LD_PRELOAD", QDir::homePath() + "/.local/share/Steam/ubuntu12_32/gameoverlayrenderer.so" );
+        currentEnv.insert( "LD_PRELOAD", QDir::homePath() + "/.local/share/Steam/ubuntu12_64/gameoverlayrenderer.so" );
     }
     QFile udkExe( renx_baseInstallPath() + udkExeStr );
     QFileInfo fi(udkExe);
