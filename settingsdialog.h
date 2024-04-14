@@ -25,6 +25,10 @@ private slots:
 
     void on_launchWinetricks_clicked();
 
+    void on_autoDetectSteam_clicked();
+
+    void on_browseSteam_clicked();
+
 private:
     Ui::SettingsDialog *ui;
     QProcess m_winecfg;

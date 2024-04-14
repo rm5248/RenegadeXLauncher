@@ -302,7 +302,7 @@ void MainWindow::launchGame(QStringList extraArgs){
     installDir.replace( "~", QDir::homePath() );
     installDir.append( "/" );
     currentEnv.insert( "WINEPREFIX", installDir );
-    currentEnv.insert( "STEAM_RUNTIME", "/home/rob/.local/share/Steam/ubuntu12_64/steam-runtime-heavy" );
+//    currentEnv.insert( "STEAM_RUNTIME", "/home/rob/.local/share/Steam/ubuntu12_64/steam-runtime-heavy" );
 
     QStringList dxvkSettings;
     if( settings->value( "dxvk/devinfo", "false" ).toBool() ){
@@ -327,12 +327,15 @@ void MainWindow::launchGame(QStringList extraArgs){
     QStringList processArgs;
 
     QString udkExeStr( "/Binaries/%1/UDK.exe" );
-    if( settings->value( "use-64bit", "false" ).toBool() ){
-        udkExeStr = udkExeStr.arg( "Win32" );
-        currentEnv.insert( "LD_PRELOAD", QDir::homePath() + "/.local/share/Steam/ubuntu12_32/gameoverlayrenderer.so" );
-    }else{
-        udkExeStr = udkExeStr.arg( "Win64" );
-        currentEnv.insert( "LD_PRELOAD", QDir::homePath() + "/.local/share/Steam/ubuntu12_64/gameoverlayrenderer.so" );
+    QVariant steamLocation = settings->value( "steam/location" );
+    if( steamLocation.isValid() && !steamLocation.toString().isEmpty() ){
+        if( settings->value( "use-64bit", "false" ).toBool() ){
+            udkExeStr = udkExeStr.arg( "Win32" );
+            currentEnv.insert( "LD_PRELOAD", steamLocation.toString() + "/ubuntu12_32/gameoverlayrenderer.so" );
+        }else{
+            udkExeStr = udkExeStr.arg( "Win64" );
+            currentEnv.insert( "LD_PRELOAD", steamLocation.toString() + "/ubuntu12_64/gameoverlayrenderer.so" );
+        }
     }
     QFile udkExe( renx_baseInstallPath() + udkExeStr );
     QFileInfo fi(udkExe);

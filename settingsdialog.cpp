@@ -8,6 +8,7 @@
 #include <QtDebug>
 #include <QMessageBox>
 #include <QDir>
+#include <QFileDialog>
 
 #include <log4cxx/logger.h>
 
@@ -29,6 +30,7 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     ui->dxvk_gpu->setChecked( settings->value( "dxvk/devinfo", "false" ).toBool() );
     ui->dxvk_fps->setChecked( settings->value( "dxvk/fps", "false" ).toBool() );
     ui->dxvk_version->setChecked( settings->value( "dxvk/version", "false" ).toBool() );
+    ui->steamLocation->setText( settings->value( "steam/location" ).toString() );
 
     connect( this, &QDialog::accepted,
              this, &SettingsDialog::settingsAccepted );
@@ -54,6 +56,7 @@ void SettingsDialog::settingsAccepted(){
     settings->setValue( "dxvk/devinfo", ui->dxvk_gpu->isChecked() );
     settings->setValue( "dxvk/fps", ui->dxvk_fps->isChecked() );
     settings->setValue( "dxvk/version", ui->dxvk_version->isChecked() );
+    settings->setValue( "steam/location", ui->steamLocation->text() );
 }
 
 void SettingsDialog::on_launchWinecfg_clicked()
@@ -119,3 +122,28 @@ void SettingsDialog::on_launchWinetricks_clicked()
     m_winetricks.setArguments( args );
     m_winetricks.start();
 }
+
+void SettingsDialog::on_autoDetectSteam_clicked()
+{
+    QDir expectedLocation = QDir::homePath() + "/.local/share/Steam";
+
+    if(!expectedLocation.exists()){
+        QMessageBox::warning(this, "Unable to find Steam", "Steam runtime folder not found, please browse manually");
+        return;
+    }
+
+    ui->steamLocation->setText( expectedLocation.absolutePath() );
+}
+
+
+void SettingsDialog::on_browseSteam_clicked()
+{
+    QString dir = QFileDialog::getExistingDirectory(this, "Select Steam directory", QDir::homePath() );
+
+    if(dir.isNull()){
+        return;
+    }
+
+    ui->steamLocation->setText( dir );
+}
+
