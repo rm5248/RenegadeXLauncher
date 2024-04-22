@@ -31,6 +31,8 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     ui->dxvk_fps->setChecked( settings->value( "dxvk/fps", "false" ).toBool() );
     ui->dxvk_version->setChecked( settings->value( "dxvk/version", "false" ).toBool() );
     ui->steamLocation->setText( settings->value( "steam/location" ).toString() );
+    ui->useGamemode->setCheckState( settings->value( "useGamemode" ).toBool() ? Qt::CheckState::Checked : Qt::CheckState::Unchecked );
+    ui->use64Bit->setChecked( settings->value( "use-64bit" ).toBool() );
 
     connect( this, &QDialog::accepted,
              this, &SettingsDialog::settingsAccepted );
@@ -57,6 +59,7 @@ void SettingsDialog::settingsAccepted(){
     settings->setValue( "dxvk/fps", ui->dxvk_fps->isChecked() );
     settings->setValue( "dxvk/version", ui->dxvk_version->isChecked() );
     settings->setValue( "steam/location", ui->steamLocation->text() );
+    settings->setValue( "useGamemode", ui->useGamemode->isChecked() );
 }
 
 void SettingsDialog::on_launchWinecfg_clicked()

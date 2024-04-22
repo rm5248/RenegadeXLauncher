@@ -328,15 +328,23 @@ void MainWindow::launchGame(QStringList extraArgs){
 
     QString udkExeStr( "/Binaries/%1/UDK.exe" );
     QVariant steamLocation = settings->value( "steam/location" );
+    QString wineExe = "wine";
+    LOG4CXX_DEBUG( logger, "Use 64 bit? " << settings->value( "use-64bit" ).toBool() );
     if( steamLocation.isValid() && !steamLocation.toString().isEmpty() ){
         if( settings->value( "use-64bit", "false" ).toBool() ){
-            udkExeStr = udkExeStr.arg( "Win32" );
-            currentEnv.insert( "LD_PRELOAD", steamLocation.toString() + "/ubuntu12_32/gameoverlayrenderer.so" );
-        }else{
             udkExeStr = udkExeStr.arg( "Win64" );
             currentEnv.insert( "LD_PRELOAD", steamLocation.toString() + "/ubuntu12_64/gameoverlayrenderer.so" );
+        }else{
+            udkExeStr = udkExeStr.arg( "Win32" );
+            currentEnv.insert( "LD_PRELOAD", steamLocation.toString() + "/ubuntu12_32/gameoverlayrenderer.so" );
         }
     }
+
+    if( settings->value( "use-64bit", "false" ).toBool() ){
+        wineExe = "wine64";
+    }
+
+
     QFile udkExe( renx_baseInstallPath() + udkExeStr );
     QFileInfo fi(udkExe);
 
@@ -347,7 +355,20 @@ void MainWindow::launchGame(QStringList extraArgs){
     processArgs.append( "-nomovies" );
 
     m_game.setProcessEnvironment( currentEnv );
-    m_game.setProgram( "wine" );
+    if( settings->value( "useGamemode" ).toBool() ){
+        m_game.setProgram( "gamemoderun" );
+        processArgs.prepend( wineExe );
+    }else{
+        m_game.setProgram( wineExe );
+    }
+
+    QString stringArgs;
+    for( QString st : processArgs ){
+        stringArgs.append( st );
+        stringArgs.append( " " );
+    }
+    LOG4CXX_DEBUG(logger, "Execute " << m_game.program().toStdString() << " " << stringArgs.toStdString() );
+
     m_game.setArguments( processArgs );
     m_game.start();
 }
