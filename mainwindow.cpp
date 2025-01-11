@@ -332,12 +332,16 @@ void MainWindow::launchGame(QStringList extraArgs){
     LOG4CXX_DEBUG( logger, "Use 64 bit? " << settings->value( "use-64bit" ).toBool() );
     if( steamLocation.isValid() && !steamLocation.toString().isEmpty() ){
         if( settings->value( "use-64bit", "false" ).toBool() ){
-            udkExeStr = udkExeStr.arg( "Win64" );
             currentEnv.insert( "LD_PRELOAD", steamLocation.toString() + "/ubuntu12_64/gameoverlayrenderer.so" );
         }else{
-            udkExeStr = udkExeStr.arg( "Win32" );
             currentEnv.insert( "LD_PRELOAD", steamLocation.toString() + "/ubuntu12_32/gameoverlayrenderer.so" );
         }
+    }
+
+    if( settings->value( "use-64bit", "false" ).toBool() ){
+        udkExeStr = udkExeStr.arg( "Win64" );
+    }else{
+        udkExeStr = udkExeStr.arg( "Win32" );
     }
 
     if( settings->value( "use-64bit", "false" ).toBool() ){
