@@ -28,12 +28,12 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->serverTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
 
-    connect( &m_installer, &RenxInstaller::totalPercentDownloaded,
-             &m_downloadProgress, &DownloadDialog::totalDownlaodPercentageUpdate );
-    connect( &m_installer, &RenxInstaller::filePercentDownloaded,
-             &m_downloadProgress, &DownloadDialog::downloadPercentageUpdated );
+    connect( &m_installer, &RenxInstaller::validationProgress,
+             &m_downloadProgress, &DownloadDialog::validationProgress );
     connect( &m_installer, &RenxInstaller::fileDownloadProgress,
-             &m_downloadProgress, &DownloadDialog::numFilesDownloadProgress );
+             &m_downloadProgress, &DownloadDialog::fileDownloadProgress );
+    connect( &m_installer, &RenxInstaller::totalProgress,
+             &m_downloadProgress, &DownloadDialog::totalProgress );
 
     connect( &m_winetricks, &QProcess::readyReadStandardError,
              [this](){
@@ -70,7 +70,7 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->statusBar->showMessage( "Game running" );
     });
 
-    connect( &m_installer, &RenxInstaller::allFilesDownloaded,
+    connect( &m_installer, &RenxInstaller::installationCompleted,
              [this](){
         int versionNumber = m_releaseInfo.gameInfo().version_number();
         std::shared_ptr<QSettings> settings = renx_settings();

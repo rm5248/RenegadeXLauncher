@@ -13,16 +13,21 @@ DownloadDialog::~DownloadDialog()
     delete ui;
 }
 
-void DownloadDialog::downloadPercentageUpdated( double percentage ){
-    int val = percentage;
-    ui->progressBar->setValue( val );
+void DownloadDialog::validationProgress( QString currentFile, double percent, int currentNum, int totalNumberFiles ){
+    ui->validating_info->setText( QString( "%1/%2").arg( currentNum ).arg( totalNumberFiles ) );
+    ui->validatingProgress->setValue( percent );
 }
 
-void DownloadDialog::totalDownlaodPercentageUpdate( double percent ){
-    int val = percent;
-    ui->totalProgessbar->setValue( val );
+void DownloadDialog::fileDownloadProgress( QString currentFile, double percent, int currentDownloadNum, int totalNumToDownload ){
+    ui->downloading_info->setText( QString( "%1/%2").arg( currentDownloadNum ).arg( totalNumToDownload ) );
+    ui->downloadProgress->setValue( percent );
 }
 
-void DownloadDialog::numFilesDownloadProgress( int numFilesDl, int totalNumFiles ){
-    ui->numFilesDl->setText( QString( "%1/%2").arg( numFilesDl ).arg( totalNumFiles ) );
+void DownloadDialog::totalProgress( int percent, int currentNumber, int maxNumber  ){
+    ui->totalProgessbar->setValue( percent );
+    ui->totalFilesValidation->setText( QString( "%1/%2").arg( currentNumber ).arg( maxNumber ) );
+}
+
+void DownloadDialog::installationCompleted(){
+
 }

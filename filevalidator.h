@@ -16,6 +16,7 @@ public:
     QString expectedChecksum() const;
 
 signals:
+    void checksumStarting( QString fileName );
     void checksumCompleted( bool success, QString calculated );
 
 public slots:

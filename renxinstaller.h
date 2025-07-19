@@ -23,10 +23,23 @@ public:
     void setNetworkAccessManager( QNetworkAccessManager* network );
 
 signals:
-    void filePercentDownloaded( double );
-    void totalPercentDownloaded( double );
-    void fileDownloadProgress( int numFilesDownloaded, int totalNumberFiles );
-    void allFilesDownloaded();
+    /**
+     * Emitted when a file is started to be checked.
+     */
+    void validationProgress( QString currentFile, double percent, int currentNum, int totalNumberFiles );
+    /**
+     * Emitted as a file is being downloaded.
+     */
+    void fileDownloadProgress( QString currentFile, double percent, int currentDownloadNum, int totalNumToDownload );
+    /**
+     * Emitted periodically to show the current state.
+     */
+    void totalProgress( int percent, int currentNumber, int maxNumber );
+
+    /**
+     * Emitted once all operations have been completed
+     */
+    void installationCompleted();
 
 public slots:
     void start();
@@ -34,12 +47,27 @@ public slots:
 private slots:
     void downloadReadyRead();
     void downloadFinished();
+    void fileChecksumStarting( QString fileName );
 
 private:
     void determineDifferences();
     void downloadNextFile();
 
 private:
+    struct PercentageTracker{
+        int current = 0;
+        int max = 0;
+
+        int getPercentage(){
+            return ((double)current / (double)max) * 100.0;
+        }
+
+        void clear(){
+            current = 0;
+            max = 0;
+        }
+    };
+
     QVector<GameInfo::MirrorInfo> m_mirrors;
     GameInfo::MirrorInfo m_preferred;
     QString m_patchPath;
@@ -47,13 +75,20 @@ private:
     QNetworkAccessManager* m_networkAccess;
     QVector<InstructionEntry> m_instructions;
     QQueue<InstructionEntry> m_filesToDownload;
-    uint32_t m_bytesToDownload;
-    uint32_t m_currentBytesDownloaded;
     QNetworkReply* m_currentDownload;
     QFile* m_currentDownloadTempFile;
     InstructionEntry m_currentInstruction;
-    int m_numFilesDownloaded;
     QThread m_checksumThread;
+
+    // Keeps track of how many files we are validating
+    PercentageTracker m_fileChecksumTracker;
+    // Keeps track of the download progress for the current file
+    PercentageTracker m_currentFileDownloadTracker;
+    // Keeps track of the total number of bytes that we are downloading
+    PercentageTracker m_totalBytesDownloadTracker;
+    // Keeps track of the total number of files that we are downloading
+    PercentageTracker m_numFilesDownloadTracker;
+
 };
 
 #endif // RENXINSTALLER_H

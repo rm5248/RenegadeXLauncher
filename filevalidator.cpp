@@ -30,8 +30,10 @@ void FileValidator::startChecksum(){
         return;
     }
 
+    emit checksumStarting( m_file.fileName() );
+
+    QFileInfo inf( m_file );
     if( !m_file.open( QIODevice::ReadOnly ) ){
-        QFileInfo inf( m_file );
         LOG4CXX_ERROR( logger, "Unable to open file "
                        << inf.absoluteFilePath().toStdString()
                        << ": "
@@ -47,6 +49,14 @@ void FileValidator::startChecksum(){
 
     m_checksum = hash.result().toHex().toUpper();
     bool result = m_checksum == m_expected;
+
+    LOG4CXX_DEBUG(logger, "File "
+                  << inf.absoluteFilePath().toStdString()
+                  << " Got checksum "
+                  << m_checksum.toStdString()
+                  << ".  Expected "
+                  << m_expected.toStdString()
+                  << " OK? " << (result ? "true" : "false") );
 
     emit checksumCompleted( result, m_checksum );
 }

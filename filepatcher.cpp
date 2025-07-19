@@ -10,6 +10,8 @@ FilePatcher::FilePatcher(QObject *parent) : QObject(parent)
 
     connect( &m_xdeltaProcess, &QProcess::finished,
              this, &FilePatcher::finished );
+    connect( &m_xdeltaProcess, &QProcess::errorOccurred,
+             this, &FilePatcher::errorOccurred );
 }
 
 void FilePatcher::setInputFile(QString absolutePath){
@@ -31,6 +33,8 @@ void FilePatcher::doPatch(){
         outputFile.remove();
     }
 
+    LOG4CXX_DEBUG(logger, "xdelta " << m_inputFile.toStdString() << " to " << m_outputFile.toStdString() );
+
     QStringList args;
     args.append( "-d" );
     args.append( m_inputFile );
@@ -46,6 +50,8 @@ void FilePatcher::finished(int exitCode, QProcess::ExitStatus status){
         return;
     }
 
+    LOG4CXX_DEBUG(logger, "File patcher exited with code " << exitCode);
+
     emit filePatched();
 }
 
@@ -55,4 +61,8 @@ QString FilePatcher::inputFile() const{
 
 QString FilePatcher::outputFile() const{
     return m_outputFile;
+}
+
+void FilePatcher::errorOccurred(QProcess::ProcessError error){
+    LOG4CXX_ERROR( logger, "Unable to patch " << m_inputFile.toStdString() << " -> " << m_outputFile.toStdString() << ": " << (int)error );
 }

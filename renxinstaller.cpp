@@ -64,7 +64,7 @@ void RenxInstaller::start(){
         QJsonDocument jsonDoc = QJsonDocument::fromJson( reply->readAll() );
 
         if( jsonDoc.isNull() ){
-            LOG4CXX_ERROR( logger, "Invalid XML file for instructions!" );
+            LOG4CXX_ERROR( logger, "Invalid JSON file for instructions!" );
             return;
         }
 
@@ -79,7 +79,7 @@ void RenxInstaller::start(){
         // Now we need to figure out if there are files that have changed.
         determineDifferences();
 
-        emit totalPercentDownloaded( 0 );
+        emit totalProgress(0, m_numFilesDownloadTracker.current, m_numFilesDownloadTracker.max);
 
         // Start the download for the next file
         downloadNextFile();
@@ -88,11 +88,18 @@ void RenxInstaller::start(){
 
 void RenxInstaller::determineDifferences(){
     QDir baseDir = renx_baseInstallPath();
-    m_bytesToDownload = 0;
-    m_currentBytesDownloaded = 0;
-    m_numFilesDownloaded = 0;
+    m_fileChecksumTracker.clear();
+    m_currentFileDownloadTracker.clear();
+    m_totalBytesDownloadTracker.clear();
+    m_numFilesDownloadTracker.clear();
+
+    int currentValidation = 1;
+
+    m_fileChecksumTracker.max = m_instructions.size();
 
     for( InstructionEntry entry : m_instructions ){
+        currentValidation++;
+
         QFile file( baseDir.path() + "/" + entry.path() );
 
         if( entry.newHash().isEmpty() ){
@@ -104,9 +111,11 @@ void RenxInstaller::determineDifferences(){
 
         if( !file.exists() ){
             LOG4CXX_DEBUG( logger, "File " << entry.path().toStdString()
-                           << " does not exist, downloading" );
-            m_bytesToDownload += entry.fullReplaceSize();
+                           << " does not exist, adding to download queue" );
+            m_totalBytesDownloadTracker.max += entry.fullReplaceSize();
             m_filesToDownload.append( entry );
+            m_fileChecksumTracker.current++;
+            m_numFilesDownloadTracker.max++;
             continue;
         }
 
@@ -126,10 +135,15 @@ void RenxInstaller::determineDifferences(){
                 LOG4CXX_DEBUG( logger, "File " << finfo.absoluteFilePath().toStdString()
                                << " checksum did not match, downloading" );
                 m_filesToDownload.push_back(entry);
-
-                // try to download the next file if we are not downloading anything
-                downloadNextFile();
+                m_totalBytesDownloadTracker.max += entry.fullReplaceSize();
+                m_numFilesDownloadTracker.max++;
+            }else{
+                LOG4CXX_DEBUG( logger, "File " << finfo.absoluteFilePath().toStdString()
+                               << " checksum matched, not downloading" );
             }
+
+            // try to download the next file if we are not downloading anything
+            downloadNextFile();
                  });
         connect( validator, &FileValidator::checksumCompleted,
                  [validator](){
@@ -138,8 +152,11 @@ void RenxInstaller::determineDifferences(){
                  );
         connect( &m_checksumThread, &QThread::started,
                  validator, &FileValidator::startChecksum );
+        connect( validator, &FileValidator::checksumStarting,
+                 this, &RenxInstaller::fileChecksumStarting );
     }
 
+    emit validationProgress( "", m_numFilesDownloadTracker.getPercentage(), m_numFilesDownloadTracker.current, m_numFilesDownloadTracker.max );
     m_checksumThread.start();
 }
 
@@ -147,9 +164,8 @@ void RenxInstaller::downloadNextFile(){
     QNetworkRequest req;
 
     if( m_filesToDownload.empty() ){
-        emit totalPercentDownloaded( 100.0 );
-        emit filePercentDownloaded( 100.0 );
-        emit allFilesDownloaded();
+        emit totalProgress(100, m_numFilesDownloadTracker.current, m_numFilesDownloadTracker.max);
+        emit installationCompleted();
         return;
     }
 
@@ -157,12 +173,15 @@ void RenxInstaller::downloadNextFile(){
         return;
     }
 
-    emit filePercentDownloaded( 0.0 );
-
     m_currentInstruction = m_filesToDownload.dequeue();
     QString nextDownloadFileName = m_currentInstruction.newHash();
+    m_currentFileDownloadTracker.clear();
+    m_currentFileDownloadTracker.max = m_currentInstruction.fullReplaceSize();
+    m_numFilesDownloadTracker.current++;
 
     LOG4CXX_DEBUG( logger, "Downloading the next file: " << nextDownloadFileName.toStdString() );
+
+    emit fileDownloadProgress(m_currentInstruction.path(), m_currentFileDownloadTracker.getPercentage(), 0, m_currentFileDownloadTracker.max);
 
     // Create the temporary file to download to.
     QDir tempDir = renx_baseInstallPath() + "/download";
@@ -185,34 +204,36 @@ void RenxInstaller::downloadNextFile(){
              this, &RenxInstaller::downloadReadyRead );
     connect( m_currentDownload, &QNetworkReply::finished,
              this, &RenxInstaller::downloadFinished );
-    connect( m_currentDownload, &QNetworkReply::downloadProgress,
-             [this](qint64 bytesRx, qint64 totalBytes){
-        emit filePercentDownloaded( bytesRx / totalBytes * 100.0 );
-    });
+//    connect( m_currentDownload, &QNetworkReply::downloadProgress,
+//             [this](qint64 bytesRx, qint64 totalBytes){
+//        emit fileDownloadProgress(m_currentInstruction.path(), bytesRx / totalBytes * 100.0, bytesRx, totalBytes );
+//    });
 }
 
 void RenxInstaller::downloadReadyRead(){
     QByteArray data = m_currentDownload->readAll();
-    m_currentBytesDownloaded += data.length();
+    m_currentFileDownloadTracker.current += data.length();
+    m_totalBytesDownloadTracker.current += data.length();
 
     m_currentDownloadTempFile->write( data );
 
-    double percent = (m_currentBytesDownloaded / static_cast<double>( m_bytesToDownload ) ) * 100.0;
+    double percent = m_currentFileDownloadTracker.getPercentage();
     LOG4CXX_TRACE( logger, "Download: " <<
-                   m_currentBytesDownloaded
+                   m_currentFileDownloadTracker.current
                    << "/"
-                   << m_bytesToDownload
+                   << m_currentFileDownloadTracker.max
                    << " = "
                    << percent
                    << "%" );
-    emit totalPercentDownloaded( percent );
+
+    emit fileDownloadProgress(m_currentInstruction.path(), m_currentFileDownloadTracker.getPercentage(), m_currentFileDownloadTracker.current, m_currentFileDownloadTracker.max);
 }
 
 void RenxInstaller::downloadFinished(){
     m_currentDownload->deleteLater();
     m_currentDownloadTempFile->close();
 
-    emit filePercentDownloaded(100.0);
+    emit fileDownloadProgress(m_currentInstruction.path(), m_currentFileDownloadTracker.getPercentage(), m_numFilesDownloadTracker.current, m_numFilesDownloadTracker.max);
 
     if( m_currentDownload->error() != QNetworkReply::NoError ){
         LOG4CXX_ERROR( logger, "Unable to download file!" );
@@ -250,13 +271,16 @@ void RenxInstaller::downloadFinished(){
         });
         fpatch->doPatch();
 
-
-        m_numFilesDownloaded++;
-        emit fileDownloadProgress( m_numFilesDownloaded, m_filesToDownload.size() );
+        emit totalProgress(m_numFilesDownloadTracker.getPercentage(), m_numFilesDownloadTracker.current, m_numFilesDownloadTracker.max);
     }
 
     delete m_currentDownloadTempFile;
     m_currentDownloadTempFile = nullptr;
 
     downloadNextFile();
+}
+
+void RenxInstaller::fileChecksumStarting( QString fileName ){
+    m_fileChecksumTracker.current++;
+    emit validationProgress( fileName, m_fileChecksumTracker.getPercentage(), m_fileChecksumTracker.current, m_fileChecksumTracker.max );
 }

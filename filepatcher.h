@@ -22,6 +22,7 @@ signals:
 
 private slots:
     void finished(int exitCode, QProcess::ExitStatus status);
+    void errorOccurred(QProcess::ProcessError error);
 
 private:
     QString m_inputFile;

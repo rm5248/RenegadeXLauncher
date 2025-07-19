@@ -16,9 +16,10 @@ public:
     ~DownloadDialog();
 
 public slots:
-    void downloadPercentageUpdated( double percent );
-    void totalDownlaodPercentageUpdate( double percent );
-    void numFilesDownloadProgress( int numFilesDl, int totalNumFiles );
+    void validationProgress( QString currentFile, double percent, int currentNum, int totalNumberFiles );
+    void fileDownloadProgress( QString currentFile, double percent, int currentDownloadNum, int totalNumToDownload );
+    void totalProgress( int percent, int currentNumber, int maxNumber  );
+    void installationCompleted();
 
 private:
     Ui::DownloadDialog *ui;

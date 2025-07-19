@@ -26,11 +26,11 @@
     <string>Download Status</string>
    </property>
   </widget>
-  <widget class="QProgressBar" name="progressBar">
+  <widget class="QProgressBar" name="downloadProgress">
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>90</y>
+     <y>150</y>
      <width>371</width>
      <height>23</height>
     </rect>
@@ -43,33 +43,33 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>60</y>
+     <y>120</y>
      <width>111</width>
      <height>19</height>
     </rect>
    </property>
    <property name="text">
-    <string>Current file:</string>
+    <string>Downloading:</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_3">
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>130</y>
+     <y>190</y>
      <width>151</width>
      <height>19</height>
     </rect>
    </property>
    <property name="text">
-    <string>Total Percentage:</string>
+    <string>Applying:</string>
    </property>
   </widget>
   <widget class="QProgressBar" name="totalProgessbar">
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>160</y>
+     <y>220</y>
      <width>361</width>
      <height>23</height>
     </rect>
@@ -78,17 +78,78 @@
     <number>0</number>
    </property>
   </widget>
-  <widget class="QLabel" name="numFilesDl">
+  <widget class="QLabel" name="totalFilesValidation">
    <property name="geometry">
     <rect>
-     <x>200</x>
-     <y>130</y>
-     <width>67</width>
-     <height>19</height>
+     <x>210</x>
+     <y>190</y>
+     <width>181</width>
+     <height>20</height>
     </rect>
    </property>
    <property name="text">
     <string>TextLabel</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_4">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>50</y>
+     <width>121</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Validating:</string>
+   </property>
+  </widget>
+  <widget class="QProgressBar" name="validatingProgress">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>80</y>
+     <width>371</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="value">
+    <number>0</number>
+   </property>
+  </widget>
+  <widget class="QLabel" name="validating_info">
+   <property name="geometry">
+    <rect>
+     <x>200</x>
+     <y>50</y>
+     <width>191</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>TextLabel</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+   </property>
+  </widget>
+  <widget class="QLabel" name="downloading_info">
+   <property name="geometry">
+    <rect>
+     <x>210</x>
+     <y>120</y>
+     <width>181</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>TextLabel</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
    </property>
   </widget>
  </widget>
